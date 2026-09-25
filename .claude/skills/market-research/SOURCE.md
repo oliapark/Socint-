@@ -1,3 +1,3 @@
-Source: https://github.com/alirezarezvani/claude-skills/tree/main/research-ops/skills/market-research
-Commit: 19392f7a08264ed00486a251f5b2098321771f94 (MIT, see LICENSE)
+Source: https://github.com/thatrebeccarae/claude-marketing/tree/main/skills/market-research
+Commit: a8a63ec1341f05ec9c1e9cb52b4edeb14e3bdcba (MIT, see LICENSE)
 Listed on: https://mcpmarket.com/tools/skills/market-research
