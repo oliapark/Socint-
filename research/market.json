@@ -1,0 +1,5 @@
+{
+  "market_name": "Israel: social listening -> narrative/reputation risk, mid-market (ESTIMATE)",
+  "top_down": {"total_market_value": 52000000, "serviceable_fraction": 0.25, "reachable_share": 0.05},
+  "bottoms_up": {"total_potential_customers": 4000, "annual_price": 15000, "serviceable_fraction": 0.30, "realistic_adoption": 0.05}
+}
