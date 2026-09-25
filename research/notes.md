@@ -64,3 +64,10 @@
 - CyberWell: IL NGO, EN+AR, trusted partner Meta/TikTok https://en.wikipedia.org/wiki/CyberWell
 - WEF: disinfo ~$78B/yr cost; 79% C-level encountered, 38% have mechanisms https://www.weforum.org/stories/2025/07/financial-impact-of-disinformation-on-corporations/
 - Visibrain from EUR 800/mo https://www.visibrain.com/tarifs ; Storyzy seed ~$0.9M https://www.cbinsights.com/company/storyzy
+
+## Round 5 (US/EU/JP/CN)
+- Regional: NA 39.9%, Europe 27.4%, APAC 25.1% fastest https://www.coherentmarketinsights.com/industry-reports/social-media-listening-market
+- Japan: X ~70M users (2nd largest) https://tam-tamlo.com/en/285 ; LINE 96M https://www.humblebunny.com/japan-top-social-media-networks/ ; adish TSE 7093 managed monitoring; Eltes TTM $59.8M; 78% buyers need Japanese (nihonium, biased)
+- China yuqing $1.5B 2024 -> $3.0B 2033; ~2M analysts https://www.verifiedmarketreports.com/product/public-opinion-monitoring-system-market/ ; access/PIPL https://appinchina.co/blog/the-complete-guide-to-social-listening-in-china/
+- US: 24 state privacy laws https://www.privacyworld.blog/2026/08/adding-to-the-count-the-latest-in-state-consumer-privacy-laws/ ; PeakMetrics $6M A https://www.axios.com/2026/04/09/peakmetrics-funding-ai-reputation-risk ; FGS Global bought Memetica Jan-2026 https://fgsglobal.com/insights/fgs-global-launches-ai-advisory-practice-and-acquires-threat-intelligence-firm-memetica ; Zignal -> ICE
+- EU: DSA Art.40 researchers only non-commercial https://www.hlc.com/en/publications/who-gets-to-see-inside-the-eus-new-rules-on-data-access-under-article-40-of-the-dsa ; EEAS 500+ FIMI incidents 2024
