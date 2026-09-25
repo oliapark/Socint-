@@ -39,3 +39,19 @@
 - Israel Amendment 13 effective 14 Aug 2025. https://iapp.org/news/a/israel-marks-a-new-era-in-privacy-law-amendment-13-ushers-in-sweeping-reform ; https://www.loc.gov/item/global-legal-monitor/2025-11-17/israel-amendment-to-privacy-protection-law-goes-into-effect/
 - Israeli PPA co-signed global scraping statement Oct 2024. https://ico.org.uk/about-the-ico/media-centre/news-and-blogs/2024/10/global-privacy-authorities-issue-follow-up-joint-statement-on-data-scraping-after-industry-engagement/
 - Israeli PPA AI guidance: scraping personal data to train AI without consent = unlawful. https://www.gornitzky.com/privacy-in-artificial-intelligence-systems-guidelines-of-the-israeli-privacy-protection-authority/
+
+## Round 3
+- X Corp v. Bright Data dismissed May 9 2024 (N.D. Cal., Alsup) — copyright preemption. https://www.mofo.com/resources/insights/240604-california-federal-court-holds-x-s-claims
+- Dutch AP scraping guidelines May 2024: purely commercial interest not legitimate; court later criticized/suspended that interpretation; EC criticized. Clearview €30.5M. https://www.hoganlovells.com/en/publications/dutch-dpa-issues-guidelines-on-data-scraping_1 ; https://www.hoganlovells.com/en/publications/dutch-dpas-fine-decision-suspended-by-dutch-court-amidst-commercial-legitimate
+- EDPB Opinion 28/2024 (17 Dec 2024): legitimate interest possible, 3-step test, case-by-case. https://www.edpb.europa.eu/system/files/2024-12/edpb_opinion_202428_ai-models_en.pdf
+- Apify from $29/mo, CU $0.2 (Starter). https://apify.com/pricing
+- EnsembleData Wood $100/mo 1,500 units/day ... Platinum $1,400/mo 50K units/day. https://ensembledata.com/pricing
+- Bright Data scraper API $1.5/1K records PAYG; FB profiles dataset $250/100K. https://brightdata.com/pricing/web-scraper
+- Signal AI $165M Sep 2025 (Battery, majority), 650+ enterprise clients. https://signal-ai.com/insights/press_release/signal-ai-announces-165-million-investment-round-led-by-battery-ventures-to-redefine-risk-and-reputation-intelligence/
+- Trendalytics acquired by Verishop Mar 2024 (Tracxn/PitchBook) https://tracxn.com/d/companies/trendalytics/__N3Xd5bLsJoHM6-6Ddu6XXKQJKncHGdmL29871nDiRUA
+- WGSN up to ~$25K/yr (secondary) https://fashiontheoryco.substack.com/p/wgsn-and-fashion-forecasting
+- Osavul $3M late seed Sep 2024 (42CAP) https://tech.eu/2024/09/12/kyivs-osavul-secures-unding-to-fight-disinformation-with-ai/
+- YouScan from $499/mo annual. https://youscan.io/pricing/
+- Pulsar: quote-based. https://www.pulsarplatform.com/guides/what-is-pulsar-trac-features-pricing
+- CrowdTangle shut Aug 14 2024; Content Library researchers only. https://www.cjr.org/tow_center/meta-is-getting-rid-of-crowdtangle.php
+- Boycott impact on brands linked to Israel (share declines up to 15% — Daily Sabah, partisan source). https://www.dailysabah.com/business/economy/2-years-into-gaza-genocide-global-boycotts-batter-brands-linked-to-israel ; https://www.business-humanrights.org/en/latest-news/iopt-companies-face-significant-financial-losses-from-boycotts-over-support-for-israel-study-finds/
