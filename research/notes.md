@@ -55,3 +55,12 @@
 - Pulsar: quote-based. https://www.pulsarplatform.com/guides/what-is-pulsar-trac-features-pricing
 - CrowdTangle shut Aug 14 2024; Content Library researchers only. https://www.cjr.org/tow_center/meta-is-getting-rid-of-crowdtangle.php
 - Boycott impact on brands linked to Israel (share declines up to 15% — Daily Sabah, partisan source). https://www.dailysabah.com/business/economy/2-years-into-gaza-genocide-global-boycotts-batter-brands-linked-to-israel ; https://www.business-humanrights.org/en/latest-news/iopt-companies-face-significant-financial-losses-from-boycotts-over-support-for-israel-study-finds/
+
+## Round 4 (abroad)
+- 1,686 Israeli tech cos in Europe, 32,617 employees (Jan 2025, Planven/KPMG) https://techtime.news/2025/12/23/kpmg-2/
+- Israel last in Nation Brands Index 2025 https://www.jpost.com/israel-news/article-881293
+- NSGP: >$1.3B requested 2025, 5x available https://jewishinsider.com/2026/08/nonprofit-security-grant-program-2025-security-aid-fema/ ; $94M to 512 Jewish orgs https://www.dhs.gov/news/2025/06/27/dhs-awards-94-million-grants-help-protect-512-jewish-faith-based-organizations
+- SCN Project RAIN: 12,400+ facilities, 1,000+ sources https://en.wikipedia.org/wiki/Secure_Community_Network
+- CyberWell: IL NGO, EN+AR, trusted partner Meta/TikTok https://en.wikipedia.org/wiki/CyberWell
+- WEF: disinfo ~$78B/yr cost; 79% C-level encountered, 38% have mechanisms https://www.weforum.org/stories/2025/07/financial-impact-of-disinformation-on-corporations/
+- Visibrain from EUR 800/mo https://www.visibrain.com/tarifs ; Storyzy seed ~$0.9M https://www.cbinsights.com/company/storyzy
