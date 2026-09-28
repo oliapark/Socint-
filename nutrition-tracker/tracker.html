@@ -126,6 +126,8 @@ textarea.field { resize: vertical; min-height: 64px; }
 .balance .big { font-family: var(--font-display); font-size: 1.35rem; }
 .balance .def { color: var(--deficit); }
 .balance .sur { color: var(--surplus); }
+.addwk { border-top: 1px solid var(--line); padding-top: 10px; }
+.addwk summary { cursor: pointer; }
 .item .body { min-width: 0; display: grid; gap: 3px; }
 .item .txt { overflow-wrap: anywhere; }
 .item .macros { font-size: 0.8rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
@@ -235,6 +237,20 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
         <div class="fit" id="fit"></div>
         <div id="workouts"></div>
         <textarea class="field" id="fitPaste" placeholder="אחרי שהקיצור רץ: להקיש כאן ולבחור ״הדבק״"></textarea>
+        <details class="addwk" id="addWk">
+          <summary><b>הוספת אימון ידנית</b> <span class="muted small">לאימונים שהטלפון לא רשם</span></summary>
+          <div style="display:grid;gap:8px;padding-top:8px">
+            <div class="row" id="wkType"></div>
+            <div class="metrics">
+              <div class="metric"><label for="wkMin">דקות</label><input class="field num" id="wkMin" type="number" inputmode="numeric" placeholder="45"></div>
+              <div class="metric"><label for="wkKcal">קלוריות (אם המכשיר הראה)</label><input class="field num" id="wkKcal" type="number" inputmode="numeric" placeholder="יחושב לבד"></div>
+              <div class="metric"><label for="wkStart">שעה</label><input class="field" id="wkStart" type="time"></div>
+            </div>
+            <div class="metric"><label>עצימות</label><div class="row" id="wkInt"></div></div>
+            <label class="small"><input type="checkbox" id="wkCounted"> הטלפון היה עליי והצעדים כבר נספרו</label>
+            <div class="row"><button class="btn primary" id="wkSave">שמירת אימון</button><span class="muted small" id="wkMsg"></span></div>
+          </div>
+        </details>
         <div class="row"><button class="btn" id="fitSave">שמירת נתוני פעילות</button><button class="link" id="toGuide">איך מגדירים את קיצור הדרך?</button><span class="muted small" id="fitMsg"></span></div>
       </div>
     </div>
@@ -408,7 +424,17 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     const age = parseKey(date).getFullYear() - p.birth;
     return 10 * w + 6.25 * p.height - 5 * age + (p.formula === "m" ? 5 : -161);
   }
+  // workouts logged by hand whose calories the phone never saw
+  function extraKcal(day) {
+    return ((day.fit || {}).workoutList || []).reduce((s, w) => s + (w.manual && !w.counted ? w.kcal || 0 : 0), 0);
+  }
   function energyOut(day) {
+    const e = energyBase(day);
+    if (!e) return null;
+    const x = extraKcal(day);
+    return x ? Object.assign({}, e, { total: e.total + x, extra: x }) : e;
+  }
+  function energyBase(day) {
     const f = day.fit || {};
     if (f.basal != null && f.basal > 500) return { total: f.basal + (f.active || 0), rest: f.basal, active: f.active ?? null, src: "health" };
     const b = bmr(day.date);
@@ -639,7 +665,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
       bx.hidden = false;
       bx.innerHTML =
         `<span class="big num ${def ? "def" : "sur"}">${def ? "גירעון" : "עודף"} ${r0(Math.abs(bal))} קלוריות</span>` +
-        `<span class="small num">אכלת ${r0(t.kcal)} · הוצאה ~${r0(out.total)} (מנוחה ${r0(out.rest)}${out.active != null ? " + פעילות " + r0(out.active) : ""})</span>` +
+        `<span class="small num">אכלת ${r0(t.kcal)} · הוצאה ~${r0(out.total)} (מנוחה ${r0(out.rest)}${out.active != null ? " + פעילות " + r0(out.active) : ""}${out.extra ? " + אימונים ידניים " + r0(out.extra) : ""})</span>` +
         `<span class="muted small">${src}${isToday ? ". היום עוד לא נגמר, והמספרים יתעדכנו בהרצה הבאה של הקיצור." : ""}</span>`;
     }
     bx.querySelectorAll("[data-go]").forEach((b) => (b.onclick = () => tab(b.dataset.go)));
@@ -659,10 +685,16 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
       cell(f.steps, "צעדים") + cell(f.distance, "ק״מ הליכה", r1) + cell(f.active, "קלוריות פעילות") + cell(f.basal, "קלוריות במנוחה") +
       cell(f.exercise || null, "דקות אימון") + cell(f.flights, "קומות") + cell(f.hrAvg, "דופק ממוצע") + cell(f.hrMax, "דופק מקסימלי") +
       cell(f.rhr, "דופק במנוחה") + cell(f.walkSpeed, "קמ״ש הליכה", r1) + cell(f.stepLen, "ס״מ אורך צעד", r0) + cell(f.asym, "% אסימטריה בהליכה", r1);
-    const wl = (f.workoutList || []).map((w) =>
-      `<div class="fact"><span>${esc(WORKOUT[w.type] || w.type)}${w.start ? " · " + esc(w.start) : ""}${w.note ? `<div class="muted small">${esc(w.note)}</div>` : ""}</span><b class="small num">${w.min != null ? r0(w.min) + " דק׳" : ""}${w.km != null ? " · " + r1(w.km) + " ק״מ" : ""}${w.kcal != null ? " · " + r0(w.kcal) + " קל׳" : ""}${w.hrAvg != null ? " · דופק " + w.hrAvg + " (עד " + w.hrMax + ")" : ""}</b></div>`).join("");
+    const wl = (f.workoutList || []).map((w, wi) =>
+      `<div class="fact"><span>${esc(WORKOUT[w.type] || w.type)}${w.start ? " · " + esc(w.start) : ""}${w.note ? `<div class="muted small">${esc(w.note)}</div>` : ""}</span><b class="small num">${w.min != null ? r0(w.min) + " דק׳" : ""}${w.km != null ? " · " + r1(w.km) + " ק״מ" : ""}${w.kcal != null ? " · " + r0(w.kcal) + " קל׳" : ""}${w.hrAvg != null ? " · דופק " + w.hrAvg + " (עד " + w.hrMax + ")" : ""}${w.manual ? ` <button class="link danger" data-wdel="${wi}">מחיקה</button>` : ""}</b></div>`).join("");
     $("fit").innerHTML = cells || '<div class="empty" style="grid-column:1/-1">אין נתוני פעילות ליום הזה.</div>';
     $("workouts").innerHTML = wl ? `<div class="facts">${wl}</div>` : "";
+    $("workouts").querySelectorAll("[data-wdel]").forEach((b) => armDelete(b, () => {
+      const d = getDay(cur), list = (d.fit && d.fit.workoutList) || [];
+      list.splice(Number(b.dataset.wdel), 1);
+      d.fit.workouts = list.length; d.fit.exercise = Math.round(list.reduce((s, w) => s + (w.min || 0), 0));
+      saveDay(d);
+    }));
     $("fitWhen").textContent = f.importedAt ? (f.source === "export" ? "מייצוא Health" : "עודכן " + new Date(f.importedAt).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" })) : "";
   }
   function itemTag(i) {
@@ -1038,6 +1070,45 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
   $("waterPlus").onclick = () => setWater((getDay(cur).water || 0) + 1);
   $("waterMinus").onclick = () => setWater((getDay(cur).water || 0) - 1);
   $("fitSave").onclick = saveFit;
+
+  // manual workouts: calories from MET when the machine didn't show them (net of resting burn)
+  const WK_TYPES = [["TraditionalStrengthTraining", "כוח", 5], ["HighIntensityIntervalTraining", "אינטרוולים", 8], ["Walking", "הליכה", 3.5],
+    ["StairClimbing", "הליכון בשיפוע", 7], ["Running", "ריצה", 9.8], ["Cycling", "אופניים/ספינינג", 7.5], ["Elliptical", "אליפטיקל", 5],
+    ["Pilates", "פילאטיס", 3], ["Yoga", "יוגה", 2.5], ["Swimming", "שחייה", 6], ["Dance", "ריקוד", 5], ["Other", "אחר", 4.5]];
+  const INT = [["קל", 0.8], ["בינוני", 1], ["קשה", 1.25]];
+  const wk = { type: "TraditionalStrengthTraining", int: 1 };
+  function renderWkForm() {
+    $("wkType").innerHTML = ""; $("wkInt").innerHTML = "";
+    for (const [id, l] of WK_TYPES) {
+      const b = document.createElement("button"); b.className = "chip" + (wk.type === id ? " on" : ""); b.textContent = l;
+      b.onclick = () => { wk.type = id; $("wkCounted").checked = id === "Walking" || id === "Running"; renderWkForm(); };
+      $("wkType").appendChild(b);
+    }
+    for (const [l, m] of INT) {
+      const b = document.createElement("button"); b.className = "chip" + (wk.int === m ? " on" : ""); b.textContent = l;
+      b.onclick = () => { wk.int = m; renderWkForm(); };
+      $("wkInt").appendChild(b);
+    }
+  }
+  renderWkForm();
+  $("wkSave").onclick = async () => {
+    const min = num($("wkMin").value);
+    if (!min) { $("wkMsg").textContent = "צריך למלא כמה דקות."; return; }
+    const d = getDay(cur);
+    const w0 = latestWeight(cur) || 66;
+    const met = WK_TYPES.find((t) => t[0] === wk.type)[2] * wk.int;
+    const typed = num($("wkKcal").value);
+    const kcal = typed != null ? typed : Math.round((met - 1) * w0 * (min / 60));
+    d.fit = d.fit || {};
+    const list = d.fit.workoutList || [];
+    list.push({ type: wk.type, start: $("wkStart").value || "", min, kcal, manual: true, counted: $("wkCounted").checked,
+      note: (typed != null ? "קלוריות מהמכשיר" : "קלוריות משוערות לפי סוג ועצימות") + ($("wkCounted").checked ? " · הצעדים נספרו בטלפון" : "") });
+    d.fit.workoutList = list; d.fit.workouts = list.length;
+    d.fit.exercise = Math.round(list.reduce((s, w) => s + (w.min || 0), 0));
+    await saveDay(d);
+    $("wkMin").value = ""; $("wkKcal").value = ""; $("wkStart").value = "";
+    $("wkMsg").textContent = `נשמר: ${kcal} קלוריות${$("wkCounted").checked ? " (לא נוספו להוצאה, כי הטלפון כבר ספר)" : " נוספו להוצאה היומית"}`;
+  };
   $("fitPaste").addEventListener("paste", () => setTimeout(() => { if (/FIT|steps\s*=/.test($("fitPaste").value)) saveFit(); }, 0));
   $("runReport").onclick = runReport;
   $("stopReport").onclick = () => reportCtl && reportCtl.abort();
