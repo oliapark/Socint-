@@ -503,7 +503,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     for (const p of periods.slice().reverse()) {
       const row = document.createElement("div"); row.className = "fact";
       const f = (k) => k ? `${+k.slice(8)}.${+k.slice(5, 7)}.${k.slice(2, 4)}` : "עדיין לא נגמר";
-      row.innerHTML = `<span>${f(p.start)} – ${f(p.end)}${p.end ? ` <span class="muted small">(${dayDiff(p.start, p.end) + 1} ימים)</span>` : ""}</span><button class="link danger">מחיקה</button>`;
+      row.innerHTML = `<span>${f(p.start)} – ${f(p.end)}${p.end ? ` <span class="muted small">(${dayDiff(p.start, p.end) + 1} ימים${p.est ? ", משוער" : ""})</span>` : ""}</span><button class="link danger">מחיקה</button>`;
       armDelete(row.querySelector("button"), () => deletePeriod(p.start));
       el.appendChild(row);
     }
@@ -1339,7 +1339,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
       if (first && !snap.metadata.fromCache) { first = false; resumePending(); }
     }, () => setStatus("החיבור לאחסון נותק. צריך לרענן את העמוד.", true));
     db.collection("periods").onSnapshot((snap) => {
-      periods = snap.docs.map((d) => d.data()).filter((p) => p && p.start).map((p) => ({ start: p.start, end: p.end || null })).sort((a, b) => a.start.localeCompare(b.start));
+      periods = snap.docs.map((d) => d.data()).filter((p) => p && p.start).map((p) => ({ start: p.start, end: p.end || null, est: !!p.est })).sort((a, b) => a.start.localeCompare(b.start));
       renderCycle();
       if (!$("view-insights").hidden) renderInsights();
       if (!$("view-setup").hidden) renderPeriodList();
