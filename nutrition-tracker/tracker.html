@@ -258,6 +258,12 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
 
   <!-- INSIGHTS -->
   <section class="view" id="view-insights" hidden>
+    <div class="block"><h2>שינויים במשקל</h2>
+      <p class="muted small" style="margin:0">כל השקילות שנרשמו. הקו המקווקו הוא המגמה ב־12 השבועות האחרונים.</p>
+      <div class="chart" id="weightHistory"></div>
+      <div class="facts" id="weightFacts"></div>
+    </div>
+    <div class="block"><h2>סיכום שבועי</h2><div class="tbl" id="weeklyTbl"></div></div>
     <div class="row" id="rangeChips"></div>
     <div class="block"><h2>מתי מגיעים המתוק והמלוח</h2>
       <p class="muted small" style="margin:0">מזוהה אוטומטית מהאוכל שנרשם: קינוחים, שוקולד, משקאות מתוקים, חטיפים מלוחים וכו׳. מספר בכל משבצת = כמה פעמים.</p>
@@ -269,7 +275,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
       <div class="facts" id="balanceFacts"></div>
       <div class="chart" id="balanceChart"></div>
     </div>
-    <div class="block"><h2>משקל</h2><div class="chart" id="weightChart"></div></div>
+
     <div class="block"><h2>קלוריות ביום</h2><div class="chart" id="kcalChart"></div></div>
     <div class="block"><h2>צעדים ביום</h2><div class="chart" id="stepsChart"></div></div>
     <div class="block"><h2>לפי יום בשבוע</h2><div class="tbl" id="weekdayTbl"></div></div>
@@ -329,6 +335,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
         <p class="muted small" style="margin:0">כשאין ״אנרגיה במנוחה״ מהקיצור, קצב חילוף החומרים מחושב בנוסחת Mifflin-St Jeor מהמשקל האחרון, הגובה והגיל.</p>
         <div class="metrics">
           <div class="metric"><label for="pHeight">גובה (ס״מ)</label><input class="field num" id="pHeight" type="number" inputmode="numeric"></div>
+          <div class="metric"><label for="pGoal">משקל יעד (ק״ג)</label><input class="field num" id="pGoal" type="number" step="0.1" inputmode="decimal"></div>
           <div class="metric"><label for="pBirth">שנת לידה</label><input class="field num" id="pBirth" type="number" inputmode="numeric"></div>
           <div class="metric"><label for="pFormula">נוסחה</label><select class="field" id="pFormula"><option value="">לבחור</option><option value="f">לנשים</option><option value="m">לגברים</option></select></div>
         </div>
@@ -362,7 +369,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
   let db = null, sample = null;
   let days = {};                 // date -> day doc
   let reports = {};              // month -> report doc
-  let targets = { kcal: 1700, protein: 110, water: 8, height: null, birth: null, formula: "" };
+  let targets = { kcal: 1700, protein: 110, water: 8, height: null, birth: null, formula: "", goal: null };
   let cur = todayKey();
   let range = 30;
   const writeChain = {};         // date -> promise, one write at a time per doc
@@ -811,7 +818,8 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
         (untimed ? `<div class="muted small">${untimed} פריטים בלי שעה לא נכנסו לטבלת השעות. כדי שיופיעו, כדאי לרשום ארוחה בזמן אמת או לכתוב שעה בתחילת השורה.</div>` : "")
       : '<div class="empty">עוד לא זוהו מתוקים או חטיפים מלוחים באוכל שנרשם.</div>';
 
-    lineChart($("weightChart"), ds.map((d) => ({ x: d.date, y: d.weight })), { unit: "ק״ג", avg7: true, color: "var(--accent)" });
+    weightHistory();
+    weeklyTable();
     barChart($("kcalChart"), ds.map((d) => { const t = dayTotals(d); return { x: d.date, y: t.n && !d.partialFood ? t.kcal : null }; }), targets.kcal);
     barChart($("stepsChart"), ds.map((d) => ({ x: d.date, y: d.fit && d.fit.steps != null ? d.fit.steps : null })), 10000, { unit: "צעדים", label: "צעדים ביום", empty: "אין עדיין נתוני צעדים." });
 
@@ -889,27 +897,6 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     const every = Math.ceil(pts.length / 6);
     return pts.map((p, i) => (i % every === 0 || i === pts.length - 1) ? `<text x="${X(i)}" y="${H - 8}" text-anchor="middle">${+p.x.slice(8)}.${+p.x.slice(5, 7)}</text>` : "").join("");
   }
-  function lineChart(el, pts, o) {
-    const vals = pts.map((p) => p.y).filter((v) => v != null);
-    if (vals.length < 2) { el.innerHTML = '<div class="empty">צריך לפחות שתי שקילות כדי לראות מגמה. כדאי להישקל בבוקר, לפני אוכל.</div>'; return; }
-    let lo = Math.min(...vals), hi = Math.max(...vals); const padv = Math.max(0.5, (hi - lo) * 0.15); lo -= padv; hi += padv;
-    const tk = ticks(lo, hi, 4); lo = Math.min(lo, tk[0]); hi = Math.max(hi, tk[tk.length - 1]);
-    // RTL reading: newest on the left
-    const X = (i) => P.l + ((W - P.l - P.r) * (pts.length - 1 - i)) / Math.max(1, pts.length - 1);
-    const Y = (v) => P.t + (H - P.t - P.b) * (1 - (v - lo) / (hi - lo));
-    let s = tk.map((v) => `<line class="grid-line" x1="${P.l}" x2="${W - P.r}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${P.l - 6}" y="${Y(v) + 4}" text-anchor="end">${v}</text>`).join("");
-    s += xLabels(pts, X);
-    const a7 = pts.map((p, i) => { const w = pts.slice(Math.max(0, i - 6), i + 1).map((q) => q.y).filter((v) => v != null); return w.length >= 3 ? w.reduce((x, y) => x + y, 0) / w.length : null; });
-    const path = (arr) => { let d = "", pen = false; arr.forEach((v, i) => { if (v == null) { pen = false; return; } d += (pen ? "L" : "M") + X(i).toFixed(1) + " " + Y(v).toFixed(1); pen = true; }); return d; };
-    if (o.avg7) s += `<path d="${path(a7)}" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-dasharray="4 4"/>`;
-    const conn = []; let last = null; pts.forEach((p, i) => { if (p.y != null) { if (last != null) conn.push(`M${X(last.i)} ${Y(last.y)}L${X(i)} ${Y(p.y)}`); last = { i, y: p.y }; } });
-    s += `<path d="${conn.join("")}" fill="none" stroke="${o.color}" stroke-width="2"/>`;
-    pts.forEach((p, i) => { if (p.y != null) s += `<circle cx="${X(i)}" cy="${Y(p.y)}" r="4" fill="${o.color}" stroke="var(--surface)" stroke-width="2"/>`; });
-    pts.forEach((p, i) => { s += `<rect x="${X(i) - 8}" y="${P.t}" width="16" height="${H - P.t - P.b}" fill="transparent" data-tip="${dateLabel(p.x)}: ${p.y == null ? "אין שקילה" : r1(p.y) + " " + o.unit}${a7[i] != null ? " · ממוצע 7 ימים " + r1(a7[i]) : ""}"/>`; });
-    el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="משקל לאורך זמן">${s}</svg><div class="legend"><span><i style="background:var(--accent)"></i>שקילה</span><span><i style="background:var(--ink-3)"></i>ממוצע נע 7 ימים</span></div>`;
-    const first = vals[0], lastv = vals[vals.length - 1];
-    el.insertAdjacentHTML("beforeend", `<div class="muted small num">שינוי בתקופה: <bdi dir="ltr">${lastv - first > 0 ? "+" : ""}${r1(lastv - first)}</bdi> ק״ג</div>`);
-  }
   function barChart(el, pts, target, o) {
     o = o || { unit: "קלוריות", label: "קלוריות ביום", empty: "הגרף יתמלא כשיירשם אוכל." };
     const vals = pts.map((p) => p.y).filter((v) => v != null);
@@ -930,6 +917,82 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     pts.forEach((p, i) => { s += `<rect x="${X(i) - bw / 2}" y="${P.t}" width="${bw}" height="${H - P.t - P.b}" fill="transparent" data-tip="${dateLabel(p.x)}: ${p.y == null ? "לא נרשם" : r0(p.y) + " " + o.unit}"/>`; });
     el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${o.label}">${s}</svg>` +
       `<div class="muted small num">ממוצע: ${r0(avg(vals))} ${o.unit}</div>`;
+  }
+  // all weigh-ins on a real time axis, with a least-squares trend over the last 12 weeks
+  function weightHistory() {
+    const el = $("weightHistory");
+    const pts = Object.values(days).filter((d) => d.weight != null).map((d) => ({ x: d.date, t: parseKey(d.date).getTime(), y: d.weight })).sort((a, b) => a.t - b.t);
+    if (pts.length < 2) { el.innerHTML = '<div class="empty">צריך לפחות שתי שקילות. כדאי להישקל בבוקר, אחרי שירותים ולפני אוכל.</div>'; $("weightFacts").innerHTML = ""; return; }
+    const DAY = 864e5, t0 = pts[0].t, t1 = Math.max(pts[pts.length - 1].t, parseKey(todayKey()).getTime());
+    const cut = t1 - 84 * DAY, recent = pts.filter((p) => p.t >= cut);
+    let slope = null, icpt = null;
+    if (recent.length >= 3) {
+      const mx = avg(recent.map((p) => p.t)), my = avg(recent.map((p) => p.y));
+      const sxx = recent.reduce((s, p) => s + (p.t - mx) ** 2, 0);
+      if (sxx > 0) { slope = recent.reduce((s, p) => s + (p.t - mx) * (p.y - my), 0) / sxx; icpt = my - slope * mx; }
+    }
+    const ys = pts.map((p) => p.y).concat(targets.goal ? [targets.goal] : []);
+    let lo = Math.min(...ys) - 0.8, hi = Math.max(...ys) + 0.8;
+    const tk = ticks(lo, hi, 4); lo = Math.min(lo, tk[0]); hi = Math.max(hi, tk[tk.length - 1]);
+    const X = (t) => P.l + (W - P.l - P.r) * (1 - (t - t0) / Math.max(DAY, t1 - t0));   // newest on the left (RTL)
+    const Y = (v) => P.t + (H - P.t - P.b) * (1 - (v - lo) / (hi - lo));
+    let s = tk.map((v) => `<line class="grid-line" x1="${P.l}" x2="${W - P.r}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${P.l - 6}" y="${Y(v) + 4}" text-anchor="end">${v}</text>`).join("");
+    // month labels
+    for (let d = new Date(parseKey(pts[0].x).getFullYear(), parseKey(pts[0].x).getMonth() + 1, 1); d.getTime() <= t1; d.setMonth(d.getMonth() + 1)) {
+      s += `<line class="grid-line" x1="${X(d.getTime())}" x2="${X(d.getTime())}" y1="${P.t}" y2="${H - P.b}" stroke-dasharray="2 3"/><text x="${X(d.getTime())}" y="${H - 8}" text-anchor="middle">${d.getMonth() + 1}/${String(d.getFullYear()).slice(2)}</text>`;
+    }
+    if (targets.goal) s += `<line x1="${P.l}" x2="${W - P.r}" y1="${Y(targets.goal)}" y2="${Y(targets.goal)}" stroke="var(--good)" stroke-width="1.5" stroke-dasharray="6 4"/><text x="${W - P.r}" y="${Y(targets.goal) - 5}" text-anchor="end" style="fill:var(--good)">יעד ${targets.goal}</text>`;
+    if (slope != null) s += `<line x1="${X(recent[0].t)}" x2="${X(t1)}" y1="${Y(icpt + slope * recent[0].t)}" y2="${Y(icpt + slope * t1)}" stroke="var(--ink-2)" stroke-width="2" stroke-dasharray="5 4"/>`;
+    s += `<path d="${pts.map((p, i) => (i ? "L" : "M") + X(p.t).toFixed(1) + " " + Y(p.y).toFixed(1)).join("")}" fill="none" stroke="var(--accent)" stroke-width="2"/>`;
+    pts.forEach((p) => { s += `<circle cx="${X(p.t)}" cy="${Y(p.y)}" r="4.5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/><circle cx="${X(p.t)}" cy="${Y(p.y)}" r="12" fill="transparent" data-tip="${dateLabel(p.x)} ${parseKey(p.x).getFullYear()}: ${r1(p.y)} ק״ג"/>`; });
+    const last = pts[pts.length - 1];
+    s += `<text x="${X(last.t) + 8}" y="${Y(last.y) - 8}" text-anchor="start" style="fill:var(--ink);font-weight:600">${r1(last.y)}</text>`;
+    el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="משקל לאורך זמן">${s}</svg>`;
+
+    const first = pts[0], min = pts.reduce((a, b) => (b.y < a.y ? b : a));
+    const iso = (v) => "\u2066" + (v > 0 ? "+" : "") + r1(v) + "\u2069";
+    const facts = [
+      ["עכשיו", `${r1(last.y)} ק״ג · ${dateLabel(last.x)}`],
+      ["שקילה ראשונה", `${r1(first.y)} ק״ג · ${+first.x.slice(8)}.${+first.x.slice(5, 7)}`],
+      ["שינוי מאז", `${iso(last.y - first.y)} ק״ג`],
+      ["הכי נמוך", `${r1(min.y)} ק״ג · ${+min.x.slice(8)}.${+min.x.slice(5, 7)}`],
+    ];
+    if (slope != null) facts.push(["קצב ב־12 שבועות", `${iso(slope * 7 * DAY)} ק״ג לשבוע`]);
+    if (targets.height) facts.push(["BMI", r1(last.y / (targets.height / 100) ** 2)]);
+    if (targets.goal) {
+      const left = last.y - targets.goal;
+      let eta = "—";
+      if (left <= 0) eta = "הגעת ליעד";
+      else if (slope != null && slope < 0) {
+        const ms = left / -slope, d = new Date(last.t + ms);
+        eta = ms > 365 * DAY ? "בקצב הנוכחי זה ייקח יותר משנה" : `בערך ${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()} בקצב הנוכחי`;
+      }
+      else eta = "בקצב הנוכחי המשקל לא יורד";
+      facts.push(["עד היעד", `${r1(Math.max(0, left))} ק״ג · ${eta}`]);
+    } else facts.push(["משקל יעד", "אפשר להגדיר בהגדרות"]);
+    $("weightFacts").innerHTML = facts.map(([a, b]) => `<div class="fact"><span>${a}</span><b class="num">${esc(b)}</b></div>`).join("") +
+      (pts.length < 8 ? '<div class="muted small">יש מעט שקילות, אז המגמה עדיין גסה. 2–3 שקילות בוקר בשבוע יספיקו כדי שתהיה מדויקת.</div>' : "");
+  }
+  // last 8 weeks, Sunday to Saturday
+  function weeklyTable() {
+    const t = parseKey(todayKey()), rows = [];
+    const start = new Date(t); start.setDate(t.getDate() - t.getDay());
+    for (let w = 0; w < 8; w++) {
+      const s0 = new Date(start); s0.setDate(start.getDate() - 7 * w);
+      const ks = Array.from({ length: 7 }, (_, i) => { const d = new Date(s0); d.setDate(s0.getDate() + i); return keyOf(d); });
+      const ds = ks.map((k) => days[k]).filter(Boolean);
+      const food = ds.filter((d) => dayTotals(d).n && !d.partialFood);
+      const steps = ds.map((d) => d.fit && d.fit.steps).filter((v) => v != null);
+      const wts = ds.filter((d) => d.weight != null);
+      const tr = food.flatMap(treats).reduce((s, x) => s + (x.kcal || 0), 0);
+      const bal = food.map(balanceOf).filter(Boolean).map((b) => b.bal);
+      rows.push({ label: `${s0.getDate()}.${s0.getMonth() + 1}`, n: food.length, kcal: avg(food.map((d) => dayTotals(d).kcal)), prot: avg(food.map((d) => dayTotals(d).protein || null)),
+        steps: avg(steps), treat: food.length ? tr / food.length : null, bal: avg(bal), w: wts.length ? wts[wts.length - 1].weight : null });
+    }
+    const balTxt = (v) => v == null ? "—" : `<bdi dir="ltr" style="color:var(--${v <= 0 ? "deficit" : "surplus"})">${v <= 0 ? "−" : "+"}${r0(Math.abs(v))}</bdi>`;
+    $("weeklyTbl").innerHTML = "<table><thead><tr><th>שבוע מ־</th><th>ימי אוכל</th><th>קל׳ ממוצע</th><th>חלבון</th><th>צעדים</th><th>מתוק+מלוח</th><th>מאזן</th><th>משקל</th></tr></thead><tbody>" +
+      rows.map((r) => `<tr><td>${r.label}</td><td>${r.n}</td><td>${r0(r.kcal)}</td><td>${r0(r.prot)}</td><td>${r0(r.steps)}</td><td>${r0(r.treat)}</td><td>${balTxt(r.bal)}</td><td>${r1(r.w)}</td></tr>`).join("") +
+      "</tbody></table><div class=\"muted small\">ממוצעים רק על ימים שבהם נרשם כל האוכל. מאזן שלילי = גירעון.</div>";
   }
   // diverging bars around zero: deficit below the line, surplus above
   function balanceChart(el, pts) {
@@ -1114,16 +1177,16 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
   $("stopReport").onclick = () => reportCtl && reportCtl.abort();
   function fillSettings() {
     $("tKcal").value = targets.kcal; $("tProt").value = targets.protein; $("tWater").value = targets.water;
-    $("pHeight").value = targets.height ?? ""; $("pBirth").value = targets.birth ?? ""; $("pFormula").value = targets.formula || "";
+    $("pHeight").value = targets.height ?? ""; $("pBirth").value = targets.birth ?? ""; $("pFormula").value = targets.formula || ""; $("pGoal").value = targets.goal ?? "";
   }
   function readTargets(v) {
     return { kcal: num(v.kcal) || 1700, protein: num(v.protein) || 110, water: num(v.water) || 8,
-      height: num(v.height), birth: num(v.birth), formula: v.formula === "f" || v.formula === "m" ? v.formula : "" };
+      height: num(v.height), birth: num(v.birth), goal: num(v.goal), formula: v.formula === "f" || v.formula === "m" ? v.formula : "" };
   }
   $("toGuide").onclick = () => { tab("setup"); $("guide").scrollIntoView(); };
   $("saveTargets").onclick = async () => {
     targets = readTargets({ kcal: $("tKcal").value || targets.kcal, protein: $("tProt").value || targets.protein, water: $("tWater").value || targets.water,
-      height: $("pHeight").value, birth: $("pBirth").value, formula: $("pFormula").value });
+      height: $("pHeight").value, birth: $("pBirth").value, formula: $("pFormula").value, goal: $("pGoal").value });
     if (db) { try { await db.doc("settings/targets").set(targets); $("targetsMsg").textContent = "נשמר"; } catch (e) { $("targetsMsg").textContent = "השמירה נכשלה"; } }
     renderToday();
   };
