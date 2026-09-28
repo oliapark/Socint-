@@ -729,7 +729,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
   }
   function renderInsights() {
     $("rangeChips").innerHTML = "";
-    for (const [n, l] of [[14, "שבועיים"], [30, "30 יום"], [90, "3 חודשים"]]) {
+    for (const [n, l] of [[14, "שבועיים"], [30, "30 יום"], [90, "3 חודשים"], [180, "חצי שנה"]]) {
       const b = document.createElement("button");
       b.className = "chip" + (range === n ? " on" : "");
       b.textContent = l;
