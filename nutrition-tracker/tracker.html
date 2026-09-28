@@ -18,6 +18,9 @@
   --sweet: #eb6834;
   --salty-soft: #dbe8f8;
   --sweet-soft: #fbe3d8;
+  --c1: #2a78d6;
+  --c2: #eb6834;
+  --c3: #1baf7a;
   --deficit: #2a78d6;
   --surplus: #e34948;
   --good: #0ca30c;
@@ -32,7 +35,7 @@
     --bg: #121714; --surface: #1a211d; --line: #2c3730; --ink: #eef3ef; --ink-2: #b7c4bb; --ink-3: #8c9a91;
     --accent: #5cc29f; --accent-soft: #1f3a30; --accent-ink: #0d1411;
     --salty: #3987e5; --sweet: #d95926; --salty-soft: #1c2c42; --sweet-soft: #3d2419;
-    --good: #3cc13c; --warn: #e0a42a; --bad: #e66767; --deficit: #3987e5; --surplus: #e66767;
+    --good: #3cc13c; --warn: #e0a42a; --bad: #e66767; --deficit: #3987e5; --surplus: #e66767; --c1: #3987e5; --c2: #d95926; --c3: #199e70;
     color-scheme: dark;
   }
 }
@@ -40,7 +43,7 @@
   --bg: #121714; --surface: #1a211d; --line: #2c3730; --ink: #eef3ef; --ink-2: #b7c4bb; --ink-3: #8c9a91;
   --accent: #5cc29f; --accent-soft: #1f3a30; --accent-ink: #0d1411;
   --salty: #3987e5; --sweet: #d95926; --salty-soft: #1c2c42; --sweet-soft: #3d2419;
-  --good: #3cc13c; --warn: #e0a42a; --bad: #e66767; --deficit: #3987e5; --surplus: #e66767;
+  --good: #3cc13c; --warn: #e0a42a; --bad: #e66767; --deficit: #3987e5; --surplus: #e66767; --c1: #3987e5; --c2: #d95926; --c3: #199e70;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -129,6 +132,22 @@ textarea.field { resize: vertical; min-height: 64px; }
 .addwk { border-top: 1px solid var(--line); padding-top: 10px; }
 .addwk summary { cursor: pointer; }
 .cycle { gap: 6px; }
+.subnav { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 58px); z-index: 4; background: var(--bg); display: flex; gap: 6px; overflow-x: auto; padding-block: 6px; scrollbar-width: none; }
+.subnav button { flex: none; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 14px; font-weight: 500; }
+.subnav button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.sec { display: grid; gap: 22px; }
+.cal { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 1fr); gap: 3px; overflow-x: auto; padding-bottom: 4px; }
+.cal i { width: 14px; height: 14px; border-radius: 3px; background: var(--line); display: block; }
+.cal i.lbl { background: none; font-style: normal; font-size: 0.65rem; color: var(--ink-3); line-height: 14px; text-align: center; }
+.hbar { display: grid; grid-template-columns: minmax(0, 1fr) 2fr auto; gap: 8px; align-items: center; font-size: 0.85rem; padding-block: 3px; }
+.hbar .track { height: 10px; background: var(--line); border-radius: 5px; overflow: hidden; }
+.hbar .track i { display: block; height: 100%; border-radius: 5px; }
+.hbar .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; unicode-bidi: plaintext; text-align: right; }
+.stack { display: flex; height: 26px; border-radius: 6px; overflow: hidden; gap: 2px; }
+.stack i { display: grid; place-items: center; color: #ffffff; font-style: normal; font-size: 0.78rem; font-weight: 600; min-width: 0; }
+.pill { display: inline-block; font-size: 0.72rem; padding: 1px 8px; border-radius: 999px; border: 1px solid currentColor; }
+.strip { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
+.strip div { border-radius: 5px; padding: 4px 2px; text-align: center; font-size: 0.72rem; border: 1px solid var(--line); font-variant-numeric: tabular-nums; }
 .period-band { fill: var(--sweet); opacity: 0.12; }
 .item .body { min-width: 0; display: grid; gap: 3px; }
 .item .txt { overflow-wrap: anywhere; }
@@ -265,32 +284,77 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
 
   <!-- INSIGHTS -->
   <section class="view" id="view-insights" hidden>
-    <div class="block"><h2>שינויים במשקל</h2>
-      <p class="muted small" style="margin:0">כל השקילות שנרשמו. הקו המקווקו הוא המגמה ב־12 השבועות האחרונים.</p>
-      <div class="chart" id="weightHistory"></div>
-      <div class="facts" id="weightFacts"></div>
-    </div>
-    <div class="block"><h2>מחזור ואכילה</h2>
-      <div class="facts" id="cycleFacts"></div>
-      <div class="tbl" id="cycleTbl"></div>
-    </div>
-    <div class="block"><h2>סיכום שבועי</h2><div class="tbl" id="weeklyTbl"></div></div>
+    <nav class="subnav" id="subnav" aria-label="נושאים">
+      <button data-sec="weight">משקל</button><button data-sec="food">תזונה</button><button data-sec="habits">הרגלים</button><button data-sec="activity">פעילות</button><button data-sec="cycle">מחזור</button>
+    </nav>
     <div class="row" id="rangeChips"></div>
-    <div class="block"><h2>מתי מגיעים המתוק והמלוח</h2>
-      <p class="muted small" style="margin:0">מזוהה אוטומטית מהאוכל שנרשם: קינוחים, שוקולד, משקאות מתוקים, חטיפים מלוחים וכו׳. מספר בכל משבצת = כמה פעמים.</p>
-      <div class="legend"><span><i style="background:var(--sweet)"></i>מתוק</span><span><i style="background:var(--salty)"></i>מלוח</span></div>
-      <div class="heat" id="heat"></div>
-      <div class="facts" id="craveFacts"></div>
-    </div>
-    <div class="block"><h2>גירעון קלורי</h2>
-      <div class="facts" id="balanceFacts"></div>
-      <div class="chart" id="balanceChart"></div>
+
+    <div class="sec" data-sec="weight">
+      <div class="block"><h2>שינויים במשקל</h2>
+        <p class="muted small" style="margin:0">הנקודות הן השקילות. הקו המלא הוא משקל המגמה, שמסנן קפיצות של מים ומלח. הקו המקווקו הוא הכיוון ב־12 השבועות האחרונים.</p>
+        <div class="chart" id="weightHistory"></div>
+        <div class="facts" id="weightFacts"></div>
+      </div>
+      <div class="block"><h2>כמה את באמת שורפת</h2>
+        <p class="muted small" style="margin:0">מחושב מהאוכל שנרשם מול השינוי במשקל המגמה ב־4 השבועות האחרונים, בלי תלות באייפון.</p>
+        <div class="facts" id="tdeeFacts"></div>
+      </div>
+      <div class="block"><h2>גירעון קלורי</h2>
+        <div class="facts" id="balanceFacts"></div>
+        <div class="chart" id="balanceChart"></div>
+      </div>
     </div>
 
-    <div class="block"><h2>קלוריות ביום</h2><div class="chart" id="kcalChart"></div></div>
-    <div class="block"><h2>צעדים ביום</h2><div class="chart" id="stepsChart"></div></div>
-    <div class="block"><h2>לפי יום בשבוע</h2><div class="tbl" id="weekdayTbl"></div></div>
-    <div class="block"><h2>מה משפיע על המתוק והמלוח</h2><div class="facts" id="compareFacts"></div></div>
+    <div class="sec" data-sec="food" hidden>
+      <div class="block"><h2>קלוריות ביום</h2><div class="chart" id="kcalChart"></div></div>
+      <div class="block"><h2>חלוקת מאקרו</h2><div id="macroSplit"></div></div>
+      <div class="block"><h2>מה מביא הכי הרבה קלוריות</h2><div id="topFoods"></div></div>
+      <div class="block"><h2>סיבים, נתרן וסוכר</h2><div id="micro"></div></div>
+      <div class="block"><h2>אמצע שבוע מול סוף שבוע</h2><div class="tbl" id="weekendTbl"></div></div>
+      <div class="block"><h2>סיכום שבועי</h2><div class="tbl" id="weeklyTbl"></div></div>
+      <div class="block"><h2>לפי יום בשבוע</h2><div class="tbl" id="weekdayTbl"></div></div>
+    </div>
+
+    <div class="sec" data-sec="habits" hidden>
+      <div class="block"><h2>לוח עקביות</h2>
+        <div class="row" id="calMetric"></div>
+        <div id="consistCal"></div>
+        <div class="facts" id="consistFacts"></div>
+      </div>
+      <div class="block"><h2>חלון אכילה</h2>
+        <p class="muted small" style="margin:0">כל פס הוא יום: מהאוכל הראשון עד האחרון. רק פריטים עם שעה נכנסים.</p>
+        <div class="chart" id="windowChart"></div>
+        <div class="facts" id="windowFacts"></div>
+      </div>
+      <div class="block"><h2>מתי מגיעים המתוק והמלוח</h2>
+        <p class="muted small" style="margin:0">מזוהה אוטומטית מהאוכל שנרשם: קינוחים, שוקולד, משקאות מתוקים, חטיפים מלוחים וכו׳. מספר בכל משבצת = כמה פעמים.</p>
+        <div class="legend"><span><i style="background:var(--sweet)"></i>מתוק</span><span><i style="background:var(--salty)"></i>מלוח</span></div>
+        <div class="heat" id="heat"></div>
+        <div class="facts" id="craveFacts"></div>
+      </div>
+      <div class="block"><h2>מה משפיע על המתוק והמלוח</h2><div class="facts" id="compareFacts"></div></div>
+    </div>
+
+    <div class="sec" data-sec="activity" hidden>
+      <div class="block"><h2>צעדים ביום</h2><div class="chart" id="stepsChart"></div></div>
+      <div class="block"><h2>לוח צעדים</h2><div id="stepsCal"></div></div>
+      <div class="block"><h2>מהירות הליכה</h2><p class="muted small" style="margin:0">ממוצע שבועי. מהירות שעולה לאורך זמן היא סימן לכושר שמשתפר.</p><div class="chart" id="speedChart"></div></div>
+      <div class="block"><h2>אורך צעד</h2><div class="chart" id="stepLenChart"></div></div>
+      <div class="block"><h2>צעדים מול אכילה</h2><div class="facts" id="stepsVsFood"></div></div>
+    </div>
+
+    <div class="sec" data-sec="cycle" hidden>
+      <div class="block"><h2>מחזור ואכילה</h2>
+        <div class="facts" id="cycleFacts"></div>
+        <div class="tbl" id="cycleTbl"></div>
+      </div>
+      <div class="block"><h2>5 השבועות הקרובים</h2><div id="forecast"></div></div>
+      <div class="block"><h2>משקל לפי יום במעגל</h2>
+        <p class="muted small" style="margin:0">כל מעגל בצבע אחר. כך רואים באיזה שלב המשקל נוטה לעלות, גם כשזה רק מים.</p>
+        <div class="chart" id="cycleWeight"></div>
+      </div>
+      <div class="block"><h2>מתוק ומלוח לפי יום במעגל</h2><div id="cycleCrave"></div></div>
+    </div>
   </section>
 
   <!-- MONTHLY -->
@@ -466,7 +530,8 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     else if (cd < ovu - 1) { phase = "זקיקי (אחרי מחזור)"; key = "follicular"; }
     else if (cd <= ovu + 1) { phase = "ביוץ (משוער)"; key = "ovulation"; }
     else if (cd <= cs.len - 5) { phase = "לוטאלי"; key = "luteal"; }
-    else { phase = "טרום מחזור"; key = "pms"; }
+    else if (cd <= cs.len) { phase = "טרום מחזור"; key = "pms"; }
+    else { phase = `מחזור צפוי (איחור של ${cd - cs.len} ימים)`; key = "pms"; }
     return { cd, phase, key, start: p.start, len: cs.len };
   }
   function nextPeriod() {
@@ -932,6 +997,9 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     weightHistory();
     weeklyTable();
     renderCycleInsights();
+    const safe = (f) => { try { f(); } catch (e) { console.error(e); } };
+    [tdee, () => macroSplit(ds), () => topFoods(ds), () => micro(ds), () => weekendTable(ds), consistency, () => eatingWindow(ds),
+      stepsCal, walkTrend, () => stepsVsFood(ds), forecast, cycleWeight, cycleCrave].forEach(safe);
     barChart($("kcalChart"), ds.map((d) => { const t = dayTotals(d); return { x: d.date, y: t.n && !d.partialFood ? t.kcal : null }; }), targets.kcal);
     barChart($("stepsChart"), ds.map((d) => ({ x: d.date, y: d.fit && d.fit.steps != null ? d.fit.steps : null })), 10000, { unit: "צעדים", label: "צעדים ביום", empty: "אין עדיין נתוני צעדים." });
 
@@ -1061,8 +1129,9 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     }
     if (targets.goal) s += `<line x1="${P.l}" x2="${W - P.r}" y1="${Y(targets.goal)}" y2="${Y(targets.goal)}" stroke="var(--good)" stroke-width="1.5" stroke-dasharray="6 4"/><text x="${W - P.r}" y="${Y(targets.goal) - 5}" text-anchor="end" style="fill:var(--good)">יעד ${targets.goal}</text>`;
     if (slope != null) s += `<line x1="${X(recent[0].t)}" x2="${X(t1)}" y1="${Y(icpt + slope * recent[0].t)}" y2="${Y(icpt + slope * t1)}" stroke="var(--ink-2)" stroke-width="2" stroke-dasharray="5 4"/>`;
-    s += `<path d="${pts.map((p, i) => (i ? "L" : "M") + X(p.t).toFixed(1) + " " + Y(p.y).toFixed(1)).join("")}" fill="none" stroke="var(--accent)" stroke-width="2"/>`;
-    pts.forEach((p) => { s += `<circle cx="${X(p.t)}" cy="${Y(p.y)}" r="4.5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/><circle cx="${X(p.t)}" cy="${Y(p.y)}" r="12" fill="transparent" data-tip="${dateLabel(p.x)} ${parseKey(p.x).getFullYear()}: ${r1(p.y)} ק״ג"/>`; });
+    const tr = trendOf(pts);
+    s += `<path d="${pts.map((p, i) => (i ? "L" : "M") + X(p.t).toFixed(1) + " " + Y(tr[i]).toFixed(1)).join("")}" fill="none" stroke="var(--accent)" stroke-width="2.5"/>`;
+    pts.forEach((p) => { s += `<circle cx="${X(p.t)}" cy="${Y(p.y)}" r="4" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/><circle cx="${X(p.t)}" cy="${Y(p.y)}" r="0" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/><circle cx="${X(p.t)}" cy="${Y(p.y)}" r="12" fill="transparent" data-tip="${dateLabel(p.x)} ${parseKey(p.x).getFullYear()}: ${r1(p.y)} ק״ג"/>`; });
     const last = pts[pts.length - 1];
     s += `<text x="${X(last.t) + 8}" y="${Y(last.y) - 8}" text-anchor="start" style="fill:var(--ink);font-weight:600">${r1(last.y)}</text>`;
     el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="משקל לאורך זמן">${s}</svg>` +
@@ -1076,6 +1145,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
       ["שינוי מאז", `${iso(last.y - first.y)} ק״ג`],
       ["הכי נמוך", `${r1(min.y)} ק״ג · ${+min.x.slice(8)}.${+min.x.slice(5, 7)}`],
     ];
+    facts.splice(1, 0, ["משקל מגמה", `${r1(tr[tr.length - 1])} ק״ג`]);
     if (slope != null) facts.push(["קצב ב־12 שבועות", `${iso(slope * 7 * DAY)} ק״ג לשבוע`]);
     if (targets.height) facts.push(["BMI", r1(last.y / (targets.height / 100) ** 2)]);
     if (targets.goal) {
@@ -1113,6 +1183,276 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
       rows.map((r) => `<tr><td>${r.label}</td><td>${r.n}</td><td>${r0(r.kcal)}</td><td>${r0(r.prot)}</td><td>${r0(r.steps)}</td><td>${r0(r.treat)}</td><td>${balTxt(r.bal)}</td><td>${r1(r.w)}</td></tr>`).join("") +
       "</tbody></table><div class=\"muted small\">ממוצעים רק על ימים שבהם נרשם כל האוכל. מאזן שלילי = גירעון.</div>";
   }
+
+  // ---------- more insights ----------
+  // exponentially smoothed weight; tau ≈ 10 days so a single salty day barely moves it
+  function trendOf(pts) {
+    const out = []; let t = null, prev = null;
+    for (const p of pts) {
+      if (t == null) t = p.y; else { const a = 1 - Math.exp(-((p.t - prev) / 864e5) / 10); t = t + a * (p.y - t); }
+      out.push(t); prev = p.t;
+    }
+    return out;
+  }
+  function weighIns() {
+    return Object.values(days).filter((d) => d.weight != null).map((d) => ({ x: d.date, t: parseKey(d.date).getTime(), y: d.weight })).sort((a, b) => a.t - b.t);
+  }
+  function fullFood(d) { return dayTotals(d).n && !d.partialFood; }
+  function factsHtml(list) { return list.map(([a, b]) => `<div class="fact"><span>${a}</span><b class="num">${esc(b)}</b></div>`).join(""); }
+
+  // adaptive expenditure: intake minus the energy of the trend-weight change, last 28 days
+  function tdee() {
+    const end = todayKey(), start = shift(end, -27);
+    const win = Object.values(days).filter((d) => d.date >= start && d.date <= end);
+    const food = win.filter(fullFood);
+    const pts = weighIns(), tr = trendOf(pts);
+    const inWin = pts.map((p, i) => ({ p, t: tr[i] })).filter((o) => o.p.x >= start && o.p.x <= end);
+    const span = inWin.length >= 2 ? dayDiff(inWin[0].p.x, inWin[inWin.length - 1].p.x) : 0;
+    const health = avg(win.map((d) => { const e = energyOut(d); return e && e.src === "health" ? e.total : null; }));
+    if (food.length < 10 || inWin.length < 2 || span < 10) {
+      $("tdeeFacts").innerHTML = factsHtml([
+        ["ימים עם כל האוכל ב־4 שבועות", `${food.length} מתוך 10 הדרושים`],
+        ["שקילות ב־4 שבועות", `${inWin.length} (צריך לפחות 2, בהפרש של 10 ימים ומעלה)`],
+        ["האייפון מעריך", health ? `${r0(health)} קלוריות ביום` : "—"],
+      ]) + '<div class="muted small">כשיהיו מספיק נתונים, כאן יופיע כמה את שורפת בפועל. זה המספר שכדאי לבנות עליו את היעד.</div>';
+      return;
+    }
+    const dkg = inWin[inWin.length - 1].t - inWin[0].t;
+    const intake = avg(food.map((d) => dayTotals(d).kcal));
+    const est = intake - (dkg * 7700) / span;
+    $("tdeeFacts").innerHTML = factsHtml([
+      ["הוצאה משוערת מהנתונים", `${r0(est)} קלוריות ביום`],
+      ["האייפון מעריך", health ? `${r0(health)} קלוריות ביום` : "—"],
+      ["צריכה ממוצעת", `${r0(intake)} (${food.length} ימים)`],
+      ["שינוי במשקל המגמה", `⁦${dkg > 0 ? "+" : ""}${r1(dkg)}⁩ ק״ג ב־${span} ימים`],
+      ["לירידה של 0.35 ק״ג בשבוע", `בערך ${r0(est - 385)} קלוריות ביום`],
+    ]) + '<div class="muted small">ההערכה מניחה שכל האוכל נרשם. ימים חסרים או לא מדויקים מטים אותה.</div>';
+  }
+
+  function macroSplit(ds) {
+    const food = ds.filter((d) => fullFood(d) && (dayTotals(d).carbs || dayTotals(d).fat));
+    if (!food.length) { $("macroSplit").innerHTML = '<div class="empty">יופיע כשיהיו ימים עם פירוט מלא של האוכל.</div>'; return; }
+    const P = avg(food.map((d) => dayTotals(d).protein)), C = avg(food.map((d) => dayTotals(d).carbs)), F = avg(food.map((d) => dayTotals(d).fat));
+    const kp = P * 4, kc = C * 4, kf = F * 9, tot = kp + kc + kf;
+    const pct = (k) => Math.round((100 * k) / tot);
+    const tp = targets.kcal ? Math.round((100 * targets.protein * 4) / targets.kcal) : null;
+    $("macroSplit").innerHTML =
+      `<div class="stack"><i style="flex:${kp};background:var(--c1)">${pct(kp)}%</i><i style="flex:${kc};background:var(--c2)">${pct(kc)}%</i><i style="flex:${kf};background:var(--c3)">${pct(kf)}%</i></div>` +
+      `<div class="legend" style="margin-top:6px"><span><i style="background:var(--c1)"></i>חלבון ${r0(P)} ג׳</span><span><i style="background:var(--c2)"></i>פחמימה ${r0(C)} ג׳</span><span><i style="background:var(--c3)"></i>שומן ${r0(F)} ג׳</span></div>` +
+      `<div class="muted small" style="margin-top:4px">ממוצע ל־${food.length} ימים.${tp ? ` היעד שלך לחלבון הוא בערך ${tp}% מהקלוריות (${targets.protein} ג׳).` : ""}</div>`;
+  }
+
+  function topFoods(ds) {
+    const agg = {};
+    for (const d of ds) for (const m of d.meals || []) for (const i of m.items || []) {
+      if (i.kcal == null) continue;
+      const k = String(i.name || "").replace(/\(.*?\)/g, "").trim().toLowerCase();
+      if (!k) continue;
+      (agg[k] = agg[k] || { name: String(i.name).replace(/\(.*?\)/g, "").trim(), kcal: 0, n: 0, taste: i.taste, treat: i.treat }).kcal += i.kcal;
+      agg[k].n++;
+    }
+    const list = Object.values(agg).sort((a, b) => b.kcal - a.kcal).slice(0, 10);
+    if (!list.length) { $("topFoods").innerHTML = '<div class="empty">יופיע כשיירשם אוכל.</div>'; return; }
+    const max = list[0].kcal;
+    $("topFoods").innerHTML = list.map((f) =>
+      `<div class="hbar" data-tip="${esc(f.name)}: ${r0(f.kcal)} קלוריות ב־${f.n} פעמים"><span class="nm">${esc(f.name)}</span><span class="track"><i style="width:${(100 * f.kcal) / max}%;background:${f.treat ? `var(--${f.taste === "salty" ? "salty" : "sweet"})` : "var(--accent)"}"></i></span><b class="num small">${r0(f.kcal)}</b></div>`).join("") +
+      '<div class="muted small">סה״כ קלוריות מכל פריט בתקופה. כתום/כחול = מתוק/מלוח.</div>';
+  }
+
+  function micro(ds) {
+    const ok = ds.filter((d) => fullFood(d) && (d.meals || []).every((m) => m.fiber != null && m.sodium != null));
+    if (!ok.length) { $("micro").innerHTML = '<div class="empty">יופיע כשיהיו ימים שכל האוכל בהם חושב בדף.</div>'; return; }
+    const rows = [
+      ["סיבים", avg(ok.map((d) => dayTotals(d).fiber)), 25, "ג׳", "min"],
+      ["נתרן", avg(ok.map((d) => dayTotals(d).sodium)), 2300, "מ״ג", "max"],
+      ["סוכר (כולל)", avg(ok.map((d) => dayTotals(d).sugar)), 50, "ג׳", "max"],
+    ];
+    $("micro").innerHTML = rows.map(([l, v, ref, u, kind]) => {
+      const good = kind === "min" ? v >= ref : v <= ref;
+      const col = good ? "var(--good)" : "var(--warn)";
+      return `<div class="hbar"><span class="nm">${l}</span><span class="track"><i style="width:${Math.min(100, (100 * v) / (ref * 1.5))}%;background:${col}"></i></span><b class="small num">${r0(v)} ${u} <span class="pill" style="color:${col}">${good ? "✓" : "!"} ${kind === "min" ? "מינ׳" : "מקס׳"} ${ref.toLocaleString("he-IL")}</span></b></div>`;
+    }).join("") + `<div class="muted small">ממוצע ל־${ok.length} ימים.</div>`;
+  }
+
+  const ALCOHOL = /(wine|beer|arak|gin|vodka|whisk|champagne|prosecco|cocktail|rosé|rose\b|יין|בירה|ערק|ג׳ין|וודקה|ויסקי|שמפניה|קוקטייל|רוזה|למברוסקו|סנגריה)/i;
+  function alcoholKcal(d) { let k = 0; for (const m of d.meals || []) for (const i of m.items || []) if (ALCOHOL.test(i.name || "")) k += i.kcal || 0; return k; }
+  function weekendTable(ds) {
+    const g = { mid: ds.filter((d) => parseKey(d.date).getDay() <= 4), end: ds.filter((d) => parseKey(d.date).getDay() >= 5) };
+    const row = (arr) => { const f = arr.filter(fullFood); return [f.length, avg(f.map((d) => dayTotals(d).kcal)), avg(f.map((d) => treats(d).reduce((s, x) => s + (x.kcal || 0), 0))), avg(f.map(alcoholKcal)), avg(f.map((d) => dayTotals(d).protein || null)), avg(arr.map((d) => d.fit && d.fit.steps))]; };
+    const a = row(g.mid), b = row(g.end);
+    const tr = (l, i, f) => `<tr><td>${l}</td><td>${f(a[i])}</td><td>${f(b[i])}</td></tr>`;
+    $("weekendTbl").innerHTML = `<table><thead><tr><th></th><th>א׳–ה׳</th><th>ו׳–ש׳</th></tr></thead><tbody>${tr("ימי אוכל", 0, String)}${tr("קלוריות", 1, r0)}${tr("מתוק+מלוח", 2, r0)}${tr("אלכוהול", 3, r0)}${tr("חלבון", 4, r0)}${tr("צעדים", 5, r0)}</tbody></table>`;
+  }
+
+  // calendar grid: 7 rows (Sun..Sat), one column per week, oldest on the right (RTL)
+  function calGrid(weeks, cellFor) {
+    const t = parseKey(todayKey()), start = new Date(t); start.setDate(t.getDate() - t.getDay() - 7 * (weeks - 1));
+    let h = ["א", "ב", "ג", "ד", "ה", "ו", "ש"].map((l) => `<i class="lbl">${l}</i>`).join("");
+    for (let w = 0; w < weeks; w++) for (let dd = 0; dd < 7; dd++) {
+      const d = new Date(start); d.setDate(start.getDate() + 7 * w + dd); const k = keyOf(d);
+      if (k > todayKey()) { h += `<i style="background:none"></i>`; continue; }
+      const c = cellFor(k, days[k]);
+      h += `<i style="background:${c.bg}" data-tip="${dateLabel(k)}: ${esc(c.tip)}"></i>`;
+    }
+    return `<div class="cal">${h}</div>`;
+  }
+  let calMetric = "log";
+  function consistency() {
+    const M = [["log", "רישום"], ["kcal", "יעד קלוריות"], ["protein", "חלבון"], ["water", "מים"]];
+    $("calMetric").innerHTML = "";
+    for (const [k, l] of M) { const b = document.createElement("button"); b.className = "chip" + (calMetric === k ? " on" : ""); b.textContent = l; b.onclick = () => { calMetric = k; consistency(); }; $("calMetric").appendChild(b); }
+    const GOOD = "var(--good)", MID = "color-mix(in srgb, var(--warn) 55%, var(--surface))", BAD = "color-mix(in srgb, var(--surplus) 70%, var(--surface))", NONE = "var(--line)";
+    const judge = (k, d) => {
+      if (!d) return { bg: NONE, tip: "אין נתונים", v: null };
+      const t = dayTotals(d), full = fullFood(d);
+      if (calMetric === "log") return full ? { bg: GOOD, tip: "נרשם כל האוכל", v: 1 } : t.n ? { bg: MID, tip: "נרשם חלקית", v: 0 } : { bg: NONE, tip: "לא נרשם", v: null };
+      if (calMetric === "kcal") { if (!full) return { bg: NONE, tip: "אין יום מלא", v: null }; const diff = t.kcal - targets.kcal; return diff <= 100 ? { bg: GOOD, tip: `${r0(t.kcal)} (ביעד)`, v: 1 } : diff <= 350 ? { bg: MID, tip: `${r0(t.kcal)} (קצת מעל)`, v: 0 } : { bg: BAD, tip: `${r0(t.kcal)} (מעל היעד)`, v: 0 }; }
+      if (calMetric === "protein") { if (!full || !t.protein) return { bg: NONE, tip: "אין נתון", v: null }; return t.protein >= targets.protein * 0.9 ? { bg: GOOD, tip: `${r0(t.protein)} ג׳`, v: 1 } : { bg: MID, tip: `${r0(t.protein)} ג׳`, v: 0 }; }
+      if (!d.water) return { bg: NONE, tip: "לא נרשם", v: null };
+      return d.water >= targets.water ? { bg: GOOD, tip: `${d.water} כוסות`, v: 1 } : { bg: MID, tip: `${d.water} כוסות`, v: 0 };
+    };
+    $("consistCal").innerHTML = calGrid(13, (k, d) => judge(k, d)) +
+      `<div class="legend" style="margin-top:6px"><span><i style="background:var(--good)"></i>עמדת</span><span><i style="background:${MID}"></i>חלקי</span>${calMetric === "kcal" ? `<span><i style="background:${BAD}"></i>מעל</span>` : ""}<span><i style="background:var(--line)"></i>אין נתון</span></div>`;
+    let streak = 0; for (let k = todayKey(); ; k = shift(k, -1)) { const d = days[k]; if (d && fullFood(d)) streak++; else if (k === todayKey()) continue; else break; if (streak > 400) break; }
+    const vals = []; for (let i = 0; i < 91; i++) { const k = shift(todayKey(), -i); vals.push(judge(k, days[k]).v); }
+    const measured = vals.filter((v) => v != null);
+    $("consistFacts").innerHTML = factsHtml([
+      ["רצף ימי רישום מלא", `${streak} ימים`],
+      ["ב־13 השבועות האחרונים", measured.length ? `${measured.filter((v) => v === 1).length} מתוך ${measured.length} ימים עם נתון` : "—"],
+    ]);
+  }
+
+  function eatingWindow(ds) {
+    const rows = ds.map((d) => {
+      const hs = []; let late = 0, timedK = 0;
+      for (const m of d.meals || []) for (const i of m.items || []) { const h = dayH(i.time || m.time); if (h == null) continue; hs.push(h); timedK += i.kcal || 0; if (h >= 20) late += i.kcal || 0; }
+      return hs.length ? { x: d.date, a: Math.min(...hs), b: Math.max(...hs), late, timedK } : { x: d.date };
+    });
+    const got = rows.filter((r) => r.a != null);
+    if (!got.length) { $("windowChart").innerHTML = '<div class="empty">צריך ארוחות עם שעה. כשרושמים בזמן אמת, השעה נשמרת לבד.</div>'; $("windowFacts").innerHTML = ""; return; }
+    const lo = 6, hi = 27, n = rows.length, bw = (W - P.l - P.r) / n;
+    const X = (i) => P.l + bw * (n - 1 - i) + bw / 2, Y = (h) => P.t + (H - P.t - P.b) * ((h - lo) / (hi - lo));
+    let s = [6, 10, 14, 18, 22, 26].map((h) => `<line class="grid-line" x1="${P.l}" x2="${W - P.r}" y1="${Y(h)}" y2="${Y(h)}"/><text x="${P.l - 6}" y="${Y(h) + 4}" text-anchor="end">${pad(h % 24)}:00</text>`).join("");
+    s += `<rect x="${P.l}" y="${Y(20)}" width="${W - P.l - P.r}" height="${Y(hi) - Y(20)}" fill="var(--sweet)" opacity="0.08"/>`;
+    s += xLabels(rows, X);
+    const w = Math.max(3, Math.min(12, bw - 2));
+    rows.forEach((r, i) => { if (r.a == null) return; const y1 = Y(r.a), y2 = Math.max(Y(r.b), y1 + 4); s += `<rect x="${X(i) - w / 2}" y="${y1}" width="${w}" height="${y2 - y1}" rx="${w / 2}" fill="var(--accent)"/><rect x="${X(i) - bw / 2}" y="${P.t}" width="${bw}" height="${H - P.t - P.b}" fill="transparent" data-tip="${dateLabel(r.x)}: ${hhmm(r.a)}–${hhmm(r.b)}"/>`; });
+    $("windowChart").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="חלון אכילה">${s}</svg>`;
+    const tk = got.reduce((s2, r) => s2 + r.timedK, 0), lk = got.reduce((s2, r) => s2 + r.late, 0);
+    $("windowFacts").innerHTML = factsHtml([
+      ["ארוחה ראשונה (ממוצע)", hhmm(avg(got.map((r) => r.a)))],
+      ["ארוחה אחרונה (ממוצע)", hhmm(avg(got.map((r) => r.b)))],
+      ["חלון אכילה", `${r1(avg(got.map((r) => r.b - r.a)))} שעות`],
+      ["קלוריות אחרי 20:00", tk ? `${Math.round((100 * lk) / tk)}%` : "—"],
+    ]);
+  }
+  function hhmm(h) { if (h == null) return "—"; const m = Math.round(h * 60) % (24 * 60); return pad(Math.floor(m / 60)) + ":" + pad(m % 60); }
+
+  function stepsCal() {
+    const vals = Object.values(days).map((d) => d.fit && d.fit.steps).filter((v) => v != null);
+    if (!vals.length) { $("stepsCal").innerHTML = '<div class="empty">אין עדיין נתוני צעדים.</div>'; return; }
+    $("stepsCal").innerHTML = calGrid(26, (k, d) => {
+      const v = d && d.fit && d.fit.steps;
+      if (v == null) return { bg: "var(--line)", tip: "אין נתון" };
+      const a = Math.min(1, v / 15000);
+      return { bg: `color-mix(in srgb, var(--c1) ${Math.round(15 + 85 * a)}%, var(--surface))`, tip: `${r0(v)} צעדים` };
+    }) + '<div class="legend" style="margin-top:6px"><span>פחות</span>' + [0.1, 0.35, 0.6, 0.85, 1].map((a) => `<i style="background:color-mix(in srgb, var(--c1) ${Math.round(15 + 85 * a)}%, var(--surface));display:inline-block;width:12px;height:12px;border-radius:3px"></i>`).join("") + '<span>15,000+</span></div>';
+  }
+
+  // simple one-series weekly line
+  function lineSimple(el, pts, unit, digits) {
+    const v = pts.filter((p) => p.y != null);
+    if (v.length < 2) { el.innerHTML = '<div class="empty">אין מספיק נתונים.</div>'; return; }
+    let lo = Math.min(...v.map((p) => p.y)), hi = Math.max(...v.map((p) => p.y)); const pd = Math.max((hi - lo) * 0.2, hi * 0.02); lo -= pd; hi += pd;
+    const tk = ticks(lo, hi, 4); lo = Math.min(lo, tk[0]); hi = Math.max(hi, tk[tk.length - 1]);
+    const n = pts.length, X = (i) => P.l + ((W - P.l - P.r) * (n - 1 - i)) / Math.max(1, n - 1), Y = (y) => P.t + (H - P.t - P.b) * (1 - (y - lo) / (hi - lo));
+    let s = tk.map((t) => `<line class="grid-line" x1="${P.l}" x2="${W - P.r}" y1="${Y(t)}" y2="${Y(t)}"/><text x="${P.l - 6}" y="${Y(t) + 4}" text-anchor="end">${t}</text>`).join("");
+    s += xLabels(pts, X);
+    s += `<path d="${pts.map((p, i) => p.y == null ? "" : (i && pts[i - 1].y != null ? "L" : "M") + X(i).toFixed(1) + " " + Y(p.y).toFixed(1)).join("")}" fill="none" stroke="var(--c1)" stroke-width="2"/>`;
+    pts.forEach((p, i) => { if (p.y != null) s += `<circle cx="${X(i)}" cy="${Y(p.y)}" r="3.5" fill="var(--c1)" stroke="var(--surface)" stroke-width="1.5"/><circle cx="${X(i)}" cy="${Y(p.y)}" r="11" fill="transparent" data-tip="שבוע מ־${+p.x.slice(8)}.${+p.x.slice(5, 7)}: ${p.y.toFixed(digits)} ${unit}"/>`; });
+    el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${unit}">${s}</svg>`;
+  }
+  function walkTrend() {
+    const t = parseKey(todayKey()), start = new Date(t); start.setDate(t.getDate() - t.getDay() - 7 * 25);
+    const wk = [];
+    for (let w = 0; w < 26; w++) {
+      const s0 = new Date(start); s0.setDate(start.getDate() + 7 * w);
+      const ks = Array.from({ length: 7 }, (_, i) => { const d = new Date(s0); d.setDate(s0.getDate() + i); return keyOf(d); });
+      const f = ks.map((k) => days[k] && days[k].fit).filter(Boolean);
+      wk.push({ x: keyOf(s0), sp: avg(f.map((x) => x.walkSpeed)), sl: avg(f.map((x) => x.stepLen)) });
+    }
+    lineSimple($("speedChart"), wk.map((w) => ({ x: w.x, y: w.sp })), "קמ״ש", 1);
+    lineSimple($("stepLenChart"), wk.map((w) => ({ x: w.x, y: w.sl })), "ס״מ", 0);
+  }
+  function stepsVsFood(ds) {
+    const f = ds.filter((d) => fullFood(d) && d.fit && d.fit.steps != null);
+    const A = f.filter((d) => d.fit.steps >= 10000), B = f.filter((d) => d.fit.steps < 10000);
+    if (A.length < 2 || B.length < 2) { $("stepsVsFood").innerHTML = `<div class="empty">צריך לפחות 2 ימים מלאים בכל צד (יש ${A.length} ימים עם 10,000+ ו־${B.length} עם פחות).</div>`; return; }
+    const k = (arr) => r0(avg(arr.map((d) => dayTotals(d).kcal))), t = (arr) => r0(avg(arr.map((d) => treats(d).reduce((s, x) => s + (x.kcal || 0), 0)))), b = (arr) => { const v = avg(arr.map((d) => { const x = balanceOf(d); return x ? x.bal : null; })); return v == null ? "—" : (v <= 0 ? "גירעון " : "עודף ") + r0(Math.abs(v)); };
+    $("stepsVsFood").innerHTML = factsHtml([["ימים", `10,000+: ${A.length} · פחות: ${B.length}`], ["קלוריות", `${k(A)} · ${k(B)}`], ["מתוק+מלוח", `${t(A)} · ${t(B)}`], ["מאזן", `${b(A)} · ${b(B)}`]]) +
+      '<div class="muted small">בכל שורה: קודם ימים עם 10,000+ צעדים, אחר כך ימים עם פחות.</div>';
+  }
+
+  const PHASE_BG = { period: "color-mix(in srgb, var(--sweet) 55%, var(--surface))", pms: "color-mix(in srgb, var(--sweet) 22%, var(--surface))", ovulation: "color-mix(in srgb, var(--c3) 35%, var(--surface))", follicular: "var(--surface)", luteal: "var(--surface)" };
+  function phaseOn(k) {
+    if (!periods.length) return null;
+    const cs = cycleStats(), c = cycleOf(k);
+    if (c && c.cd <= cs.len) return c;
+    const last = periods[periods.length - 1].start;
+    const n = Math.floor(dayDiff(last, k) / cs.len), st = shift(last, n * cs.len), cd = dayDiff(st, k) + 1, ovu = cs.len - 14;
+    const key = cd <= cs.per ? "period" : cd < ovu - 1 ? "follicular" : cd <= ovu + 1 ? "ovulation" : cd <= cs.len - 5 ? "luteal" : "pms";
+    return { cd, key, predicted: true };
+  }
+  function forecast() {
+    if (!periods.length) { $("forecast").innerHTML = '<div class="empty">יופיע אחרי שיירשם מחזור.</div>'; return; }
+    const t = parseKey(todayKey()), start = new Date(t); start.setDate(t.getDate() - t.getDay());
+    let h = ["א", "ב", "ג", "ד", "ה", "ו", "ש"].map((l) => `<div class="muted" style="border:0">${l}</div>`).join("");
+    for (let i = 0; i < 35; i++) {
+      const d = new Date(start); d.setDate(start.getDate() + i); const k = keyOf(d), ph = phaseOn(k);
+      const today = k === todayKey();
+      h += `<div style="background:${ph ? PHASE_BG[ph.key] : "var(--surface)"};${today ? "outline:2px solid var(--accent);" : ""}${k < todayKey() ? "opacity:.5;" : ""}" data-tip="${dateLabel(k)}${ph ? " · יום " + ph.cd + " במעגל" : ""}">${d.getDate()}.${d.getMonth() + 1}</div>`;
+    }
+    $("forecast").innerHTML = `<div class="strip">${h}</div><div class="legend" style="margin-top:6px"><span><i style="background:${PHASE_BG.period}"></i>מחזור</span><span><i style="background:${PHASE_BG.pms}"></i>טרום מחזור</span><span><i style="background:${PHASE_BG.ovulation}"></i>ביוץ</span></div><div class="muted small">תחזית לפי אורך מעגל של ${cycleStats().len} ימים.</div>`;
+  }
+  function cycleWeight() {
+    const el = $("cycleWeight"), cs = cycleStats();
+    const series = periods.slice(-3).map((p, idx, arr) => {
+      const next = periods[periods.indexOf(p) + 1];
+      const end = next ? shift(next.start, -1) : shift(p.start, cs.len + 4);
+      return { p, color: `var(--c${idx + 1})`, pts: Object.values(days).filter((d) => d.weight != null && d.date >= p.start && d.date <= end).map((d) => ({ cd: dayDiff(p.start, d.date) + 1, y: d.weight, x: d.date })).sort((a, b) => a.cd - b.cd) };
+    }).filter((s2) => s2.pts.length);
+    if (!series.length) { el.innerHTML = '<div class="empty">יופיע כשיהיו שקילות בתוך מעגלים רשומים.</div>'; return; }
+    const all = series.flatMap((s2) => s2.pts.map((p) => p.y)), maxCd = Math.max(cs.len + 4, ...series.flatMap((s2) => s2.pts.map((p) => p.cd)));
+    let lo = Math.min(...all) - 0.6, hi = Math.max(...all) + 0.6; const tk = ticks(lo, hi, 4); lo = Math.min(lo, tk[0]); hi = Math.max(hi, tk[tk.length - 1]);
+    const X = (cd) => W - P.r - ((W - P.l - P.r) * (cd - 1)) / (maxCd - 1), Y = (v) => P.t + (H - P.t - P.b) * (1 - (v - lo) / (hi - lo));
+    let s = tk.map((t) => `<line class="grid-line" x1="${P.l}" x2="${W - P.r}" y1="${Y(t)}" y2="${Y(t)}"/><text x="${P.l - 6}" y="${Y(t) + 4}" text-anchor="end">${t}</text>`).join("");
+    s += `<rect x="${X(cs.per + 0.5)}" y="${P.t}" width="${X(0.5) - X(cs.per + 0.5)}" height="${H - P.t - P.b}" fill="var(--sweet)" opacity="0.1"/>`;
+    s += `<rect x="${X(cs.len + 0.5)}" y="${P.t}" width="${X(cs.len - 5 + 0.5) - X(cs.len + 0.5)}" height="${H - P.t - P.b}" fill="var(--sweet)" opacity="0.06"/>`;
+    for (const cd of [1, 7, 14, 21, 28]) if (cd <= maxCd) s += `<text x="${X(cd)}" y="${H - 8}" text-anchor="middle">${cd}</text>`;
+    for (const sr of series) {
+      s += `<path d="${sr.pts.map((p, i) => (i ? "L" : "M") + X(p.cd).toFixed(1) + " " + Y(p.y).toFixed(1)).join("")}" fill="none" stroke="${sr.color}" stroke-width="2"/>`;
+      sr.pts.forEach((p) => { s += `<circle cx="${X(p.cd)}" cy="${Y(p.y)}" r="4" fill="${sr.color}" stroke="var(--surface)" stroke-width="2"/><circle cx="${X(p.cd)}" cy="${Y(p.y)}" r="11" fill="transparent" data-tip="${dateLabel(p.x)} · יום ${p.cd} במעגל: ${r1(p.y)} ק״ג"/>`; });
+    }
+    el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="משקל לפי יום במעגל">${s}</svg>` +
+      `<div class="legend">${series.map((sr) => `<span><i style="background:${sr.color}"></i>מעגל מ־${+sr.p.start.slice(8)}.${+sr.p.start.slice(5, 7)}</span>`).join("")}</div><div class="muted small">ציר אופקי: יום במעגל (1 = היום הראשון של המחזור). רקע: מחזור ובהיר יותר טרום מחזור.</div>`;
+  }
+  function cycleCrave() {
+    if (!periods.length) { $("cycleCrave").innerHTML = '<div class="empty">יופיע אחרי שיירשם מחזור.</div>'; return; }
+    const len = cycleStats().len, c = { sweet: Array(len).fill(0), salty: Array(len).fill(0) }, seen = Array(len).fill(0);
+    for (const d of Object.values(days)) {
+      const cy = cycleOf(d.date); if (!cy || cy.cd > len || !fullFood(d)) continue;
+      seen[cy.cd - 1]++;
+      for (const x of treats(d)) c[x.type][cy.cd - 1]++;
+    }
+    const max = Math.max(1, ...c.sweet, ...c.salty);
+    let h = `<div style="display:grid;grid-template-columns:44px repeat(${len}, minmax(0,1fr));gap:2px;font-size:0.62rem">` + '<div></div>' + Array.from({ length: len }, (_, i) => `<div class="muted" style="text-align:center">${(i + 1) % 7 === 1 ? i + 1 : ""}</div>`).join("");
+    for (const [k, l] of [["sweet", "מתוק"], ["salty", "מלוח"]]) {
+      h += `<div class="small" style="font-weight:600">${l}</div>`;
+      c[k].forEach((n, i) => { h += `<div style="height:22px;border-radius:3px;background:${n ? `color-mix(in srgb, var(--${k}) ${Math.round(20 + 80 * n / max)}%, var(--surface))` : seen[i] ? "var(--surface)" : "var(--line)"};border:1px solid var(--line)" data-tip="יום ${i + 1}: ${n} פעמים ${l} (${seen[i]} ימי רישום)"></div>`; });
+    }
+    $("cycleCrave").innerHTML = h + '</div><div class="muted small">משבצת אפורה = אין עדיין יום רישום מלא ביום הזה במעגל. זה יתמלא ככל שתרשמי לאורך כמה מעגלים.</div>';
+  }
+
   // diverging bars around zero: deficit below the line, surplus above
   function balanceChart(el, pts) {
     const vals = pts.map((p) => p.y).filter((v) => v != null);
@@ -1231,6 +1571,17 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     window.scrollTo(0, 0);
   }
   document.querySelectorAll(".tabs button").forEach((b) => (b.onclick = () => tab(b.dataset.tab)));
+  let sec = "weight";
+  try { sec = localStorage.getItem("sec") || "weight"; } catch (e) {}
+  function showSec(name) {
+    sec = name;
+    document.querySelectorAll("#subnav button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.sec === name ? "true" : "false"));
+    document.querySelectorAll(".sec").forEach((el) => (el.hidden = el.dataset.sec !== name));
+    $("rangeChips").hidden = name === "cycle";
+    try { localStorage.setItem("sec", name); } catch (e) {}
+  }
+  document.querySelectorAll("#subnav button").forEach((b) => (b.onclick = () => { showSec(b.dataset.sec); window.scrollTo(0, 0); }));
+  showSec(sec);
   $("prevDay").onclick = () => { cur = shift(cur, -1); renderToday(); };
   $("nextDay").onclick = () => { if (cur < todayKey()) { cur = shift(cur, 1); renderToday(); } };
   $("mealTime").value = nowHM();
