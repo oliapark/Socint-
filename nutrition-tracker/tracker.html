@@ -139,6 +139,11 @@ textarea.field { resize: vertical; min-height: 64px; }
 .strip { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
 .strip div { border-radius: 5px; padding: 4px 2px; text-align: center; font-size: 0.72rem; border: 1px solid var(--line); font-variant-numeric: tabular-nums; }
 .period-band { fill: var(--sweet); opacity: 0.12; }
+.phases { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.phase { border-radius: 14px; padding: 10px 12px; background: var(--surface); border: 1px solid var(--line); display: grid; gap: 3px; font-size: 0.84rem; color: var(--ink-2); }
+.phase b { font-family: var(--font-display); font-size: 0.98rem; color: var(--ink); display: flex; justify-content: space-between; gap: 6px; }
+.phase b span { font-family: var(--font-body); font-size: 0.75rem; color: var(--ink-3); font-weight: 400; }
+.phase.now { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
 .item .body { min-width: 0; display: grid; gap: 3px; }
 .item .txt { overflow-wrap: anywhere; }
 .item .macros { font-size: 0.8rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
@@ -378,6 +383,12 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     </div>
 
     <div class="sec" data-sec="cycle" hidden>
+      <div class="block"><h2>המעגל שלך: הורמונים ומשקל</h2>
+        <p class="take" id="tk-horm"></p>
+        <div class="chart" id="hormoneChart"></div>
+        <div class="phases" id="phaseCards"></div>
+        <p class="muted small" style="margin:0">עקומות ההורמונים הן תבנית אופיינית למעגל באורך שלך, לא מדידה שלך. המשקל למטה הוא השקילות האמיתיות שלך, לפי יום במעגל.</p>
+      </div>
       <div class="block"><h2>מחזור ואכילה</h2>
         <div class="facts" id="cycleFacts"></div>
         <div class="tbl" id="cycleTbl"></div>
@@ -1170,7 +1181,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     renderCycleInsights();
     const safe = (f) => { try { f(); } catch (e) { console.error(e); } };
     [tdee, () => macroSplit(ds), () => topFoods(ds), () => micro(ds), () => weekendTable(ds), consistency, () => eatingWindow(ds),
-      stepsCal, walkTrend, () => stepsVsFood(ds), forecast, cycleWeight, cycleCrave].forEach(safe);
+      stepsCal, walkTrend, () => stepsVsFood(ds), forecast, cycleWeight, hormoneChart, cycleCrave].forEach(safe);
     barChart($("kcalChart"), ds.map((d) => { const t = dayTotals(d); return { x: d.date, y: t.n && !d.partialFood ? t.kcal : null }; }), targets.kcal);
     takeaways(ds);
     barChart($("stepsChart"), ds.map((d) => ({ x: d.date, y: d.fit && d.fit.steps != null ? d.fit.steps : null })), 10000, { unit: "צעדים", label: "צעדים ביום", empty: "אין עדיין נתוני צעדים." });
@@ -1611,6 +1622,109 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
       h += `<div style="background:${ph ? PHASE_BG[ph.key] : "var(--surface)"};${today ? "outline:2px solid var(--accent);" : ""}${k < todayKey() ? "opacity:.5;" : ""}" data-tip="${dateLabel(k)}${ph ? " · יום " + ph.cd + " במעגל" : ""}">${d.getDate()}.${d.getMonth() + 1}</div>`;
     }
     $("forecast").innerHTML = `<div class="strip">${h}</div><div class="legend" style="margin-top:6px"><span><i style="background:${PHASE_BG.period}"></i>מחזור</span><span><i style="background:${PHASE_BG.pms}"></i>טרום מחזור</span><span><i style="background:${PHASE_BG.ovulation}"></i>ביוץ</span></div><div class="muted small">תחזית לפי אורך מעגל של ${cycleStats().len} ימים.</div>`;
+  }
+  // classic cycle chart: phase strip, schematic hormone curves, and her weight by cycle day (two panels, shared x)
+  const PHASES = [
+    { key: "period", name: "מחזור", col: "#e2508e", note: "אסטרוגן ופרוגסטרון נמוכים. עייפות ורעב יכולים לעלות, והמשקל לרוב יורד חזרה לקראת הסוף." },
+    { key: "follicular", name: "זקיקי", col: "#9a70ea", note: "אסטרוגן עולה. בדרך כלל יותר אנרגיה ופחות חשקים. זמן טוב לעמוד ביעד ולהתאמן חזק." },
+    { key: "ovulation", name: "ביוץ", col: "#3a96dc", note: "שיא של LH ואסטרוגן. לפעמים תיאבון קצת נמוך יותר." },
+    { key: "luteal", name: "לוטאלי", col: "#b77fd9", note: "פרוגסטרון עולה, וההוצאה הקלורית עולה מעט (~100 קל׳). יותר רעב זה טבעי." },
+    { key: "pms", name: "טרום מחזור", col: "#f07aa8", note: "ההורמונים יורדים. חשקים למתוק ואגירת מים נפוצים, ולכן המשקל יכול לקפוץ." },
+  ];
+  function hormoneLevels(d, len) {
+    const O = len - 14, g = (mu, sd) => Math.exp(-((d - mu) ** 2) / (2 * sd * sd));
+    return {
+      est: 0.12 + 0.88 * g(O - 1, 2.3) + 0.5 * g(O + 7, 3.4) + 0.08 * Math.min(1, d / O),
+      prog: 0.04 + (d > O - 1 ? 0.96 * g(O + 7, 3.3) : 0),
+      lh: 0.06 + 0.94 * g(O - 1, 0.9),
+      fsh: 0.1 + 0.3 * g(3, 3) + 0.5 * g(O - 1, 1.0),
+    };
+  }
+  function phaseKeyFor(cd, len, per) {
+    const O = len - 14;
+    return cd <= per ? "period" : cd < O - 1 ? "follicular" : cd <= O + 1 ? "ovulation" : cd <= len - 5 ? "luteal" : "pms";
+  }
+  function hormoneChart() {
+    const el = $("hormoneChart");
+    if (!periods.length) { el.innerHTML = '<div class="empty">יופיע אחרי שיירשם מחזור.</div>'; $("phaseCards").innerHTML = ""; setTake("tk-horm", ""); return; }
+    const cs = cycleStats(), len = cs.len, per = cs.per;
+    const W2 = 400, L = 44, R = 10, top = 8, stripH = 22, h1 = 130, gap = 26, h2 = 120, bottom = 26;
+    const H2 = top + stripH + h1 + gap + h2 + bottom;
+    const X = (cd) => W2 - R - ((W2 - L - R) * (cd - 1)) / (len - 1);           // day 1 on the right (RTL)
+    const y1 = top + stripH + 4, Y1 = (v) => y1 + h1 * (1 - v / 1.05);
+    const y2 = y1 + h1 + gap;
+    let s = "";
+    // phase strip + faint bands through both panels
+    for (let cd = 1; cd <= len; cd++) {
+      const k = phaseKeyFor(cd, len, per), ph = PHASES.find((p) => p.key === k);
+      const xa = X(cd + 0.5), xb = X(cd - 0.5);
+      s += `<rect x="${xa}" y="${top}" width="${xb - xa + 0.3}" height="${stripH}" fill="${ph.col}" opacity="0.85"/>`;
+      s += `<rect x="${xa}" y="${y1}" width="${xb - xa + 0.3}" height="${H2 - bottom - y1}" fill="${ph.col}" opacity="0.07"/>`;
+    }
+    // phase labels on the strip
+    for (const ph of PHASES) {
+      const ds2 = []; for (let cd = 1; cd <= len; cd++) if (phaseKeyFor(cd, len, per) === ph.key) ds2.push(cd);
+      if (!ds2.length) continue;
+      const mid = (ds2[0] + ds2[ds2.length - 1]) / 2, wpx = X(ds2[0] - 0.5) - X(ds2[ds2.length - 1] + 0.5);
+      if (wpx > 34) s += `<text x="${X(mid)}" y="${top + 15}" text-anchor="middle" style="fill:#1a0b13;font-weight:600;font-size:11px">${ph.name}</text>`;
+    }
+    // hormone curves
+    const H = [["est", "אסטרוגן", "var(--c2)", ""], ["prog", "פרוגסטרון", "var(--c3)", ""], ["lh", "LH", "var(--c1)", ""], ["fsh", "FSH", "var(--c1)", "4 4"]];
+    for (const [k, l, col, dash] of H) {
+      let d = ""; const pk = { v: -1, cd: 1 };
+      for (let i = 0; i <= (len - 1) * 4; i++) { const cd = 1 + i / 4, v = hormoneLevels(cd, len)[k]; d += (i ? "L" : "M") + X(cd).toFixed(1) + " " + Y1(v).toFixed(1); if (v > pk.v) { pk.v = v; pk.cd = cd; } }
+      s += `<path d="${d}" fill="none" stroke="${col}" stroke-width="${k === "fsh" ? 1.8 : 2.5}" ${dash ? `stroke-dasharray="${dash}"` : ""} stroke-linejoin="round"/>`;
+      const O = len - 14, at = k === "fsh" ? 3 : k === "est" ? O - 4.5 : pk.cd;
+      const lx = X(at), ly = k === "lh" ? Y1(pk.v) - 7 : Y1(hormoneLevels(at, len)[k]) - 7;
+      s += `<text x="${lx}" y="${Math.max(y1 + 10, ly)}" text-anchor="middle" style="fill:${col};font-weight:600">${l}</text>`;
+    }
+    s += `<text x="${L - 6}" y="${y1 + 10}" text-anchor="end">גבוה</text><text x="${L - 6}" y="${y1 + h1}" text-anchor="end">נמוך</text>`;
+    // weight panel
+    const series = periods.slice(-3).map((p, idx) => {
+      const next = periods[periods.indexOf(p) + 1], end = next ? shift(next.start, -1) : shift(p.start, len + 4);
+      return { p, color: `var(--c${idx + 1})`, pts: Object.values(days).filter((d) => d.weight != null && d.date >= p.start && d.date <= end).map((d) => ({ cd: dayDiff(p.start, d.date) + 1, y: d.weight, x: d.date })).filter((q) => q.cd <= len).sort((a, b) => a.cd - b.cd) };
+    }).filter((x) => x.pts.length);
+    const allW = series.flatMap((x) => x.pts.map((q) => q.y));
+    s += `<text x="${W2 - R}" y="${y2 - 8}" text-anchor="end" style="fill:var(--ink-2);font-weight:600">המשקל שלך (ק״ג)</text>`;
+    if (allW.length) {
+      let lo = Math.min(...allW) - 0.5, hi = Math.max(...allW) + 0.5; const tk = ticks(lo, hi, 3); lo = Math.min(lo, tk[0]); hi = Math.max(hi, tk[tk.length - 1]);
+      const Y2 = (v) => y2 + h2 * (1 - (v - lo) / (hi - lo));
+      s += tk.map((t) => `<line class="grid-line" x1="${L}" x2="${W2 - R}" y1="${Y2(t)}" y2="${Y2(t)}"/><text x="${L - 6}" y="${Y2(t) + 4}" text-anchor="end">${t}</text>`).join("");
+      for (const sr of series) {
+        s += `<path d="${sr.pts.map((q, i) => (i ? "L" : "M") + X(q.cd).toFixed(1) + " " + Y2(q.y).toFixed(1)).join("")}" fill="none" stroke="${sr.color}" stroke-width="2" opacity="0.8"/>`;
+        sr.pts.forEach((q) => { s += `<circle cx="${X(q.cd)}" cy="${Y2(q.y)}" r="4.5" fill="${sr.color}" stroke="var(--surface)" stroke-width="2"/><circle cx="${X(q.cd)}" cy="${Y2(q.y)}" r="12" fill="transparent" data-tip="${dateLabel(q.x)} · יום ${q.cd} במעגל: ${r1(q.y)} ק״ג"/>`; });
+      }
+    } else s += `<text x="${(L + W2 - R) / 2}" y="${y2 + h2 / 2}" text-anchor="middle">אין עדיין שקילות בתוך מעגלים רשומים</text>`;
+    // x axis
+    for (const cd of [1, 7, 14, 21, 28].filter((c) => c <= len)) s += `<text x="${X(cd)}" y="${H2 - 8}" text-anchor="middle">${cd}</text>`;
+
+    // today marker
+    const c = cycleOf(todayKey());
+    if (c && c.cd <= len) {
+      s += `<line x1="${X(c.cd)}" x2="${X(c.cd)}" y1="${top}" y2="${H2 - bottom}" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="3 3"/>`;
+      s += `<rect x="${X(c.cd) - 22}" y="${y1 + 2}" width="44" height="18" rx="9" fill="var(--ink)"/><text x="${X(c.cd)}" y="${y1 + 15}" text-anchor="middle" style="fill:var(--bg);font-weight:600;font-size:11px">היום</text>`;
+    }
+    el.innerHTML = `<svg viewBox="0 0 ${W2} ${H2}" role="img" aria-label="שלבי המחזור, הורמונים ומשקל">${s}</svg>` +
+      `<div class="legend" style="flex-wrap:wrap"><span><i style="background:var(--c2)"></i>אסטרוגן</span><span><i style="background:var(--c3)"></i>פרוגסטרון</span><span><i style="background:var(--c1)"></i>LH (מלא) · FSH (מקווקו)</span><span class="muted">ציר תחתון: יום במעגל</span></div>` +
+      (series.length ? `<div class="legend" style="flex-wrap:wrap">${series.map((sr) => `<span><i style="background:${sr.color};border-radius:50%"></i>שקילות במעגל מ־${+sr.p.start.slice(8)}.${+sr.p.start.slice(5, 7)}</span>`).join("")}</div>` : "");
+    // phase cards with her own numbers
+    const byPh = {}; PHASES.forEach((p) => (byPh[p.key] = { w: [], k: [], t: [] }));
+    for (const d of Object.values(days)) {
+      const cy = cycleOf(d.date); if (!cy || cy.cd > len) continue;
+      const k = phaseKeyFor(cy.cd, len, per);
+      if (d.weight != null) byPh[k].w.push(d.weight);
+      if (fullFood(d)) { byPh[k].k.push(dayTotals(d).kcal); byPh[k].t.push(treats(d).reduce((s2, x) => s2 + (x.kcal || 0), 0)); }
+    }
+    const nowK = c && c.cd <= len ? phaseKeyFor(c.cd, len, per) : null;
+    const range = (k) => { const ds2 = []; for (let cd = 1; cd <= len; cd++) if (phaseKeyFor(cd, len, per) === k) ds2.push(cd); return ds2.length ? `ימים ${ds2[0]}–${ds2[ds2.length - 1]}` : ""; };
+    $("phaseCards").innerHTML = PHASES.map((p) => {
+      const b = byPh[p.key], mine = [];
+      if (b.w.length) mine.push(`משקל ${r1(avg(b.w))}`);
+      if (b.k.length) mine.push(`${r0(avg(b.k))} קל׳ ביום`);
+      if (b.t.length) mine.push(`מתוק+מלוח ${r0(avg(b.t))}`);
+      return `<div class="phase${nowK === p.key ? " now" : ""}" style="border-inline-start:4px solid ${p.col}"><b>${p.name}${nowK === p.key ? " · עכשיו" : ""}<span>${range(p.key)}</span></b><span>${p.note}</span>${mine.length ? `<span class="muted">אצלך: ${mine.join(" · ")}</span>` : ""}</div>`;
+    }).join("");
+    setTake("tk-horm", c && c.cd <= len ? `היום את ביום <b>${c.cd}</b> מתוך ~${len}, בשלב <b>${PHASES.find((p) => p.key === nowK).name}</b>. ${PHASES.find((p) => p.key === nowK).note}` : `מעגל של ~${len} ימים.`);
   }
   function cycleWeight() {
     const el = $("cycleWeight"), cs = cycleStats();
