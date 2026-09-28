@@ -233,6 +233,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
       <div class="head"><h2>פעילות מהאייפון</h2><span class="muted small" id="fitWhen"></span></div>
       <div class="card">
         <div class="fit" id="fit"></div>
+        <div id="workouts"></div>
         <textarea class="field" id="fitPaste" placeholder="אחרי שהקיצור רץ: להקיש כאן ולבחור ״הדבק״"></textarea>
         <div class="row"><button class="btn" id="fitSave">שמירת נתוני פעילות</button><button class="link" id="toGuide">איך מגדירים את קיצור הדרך?</button><span class="muted small" id="fitMsg"></span></div>
       </div>
@@ -254,6 +255,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     </div>
     <div class="block"><h2>משקל</h2><div class="chart" id="weightChart"></div></div>
     <div class="block"><h2>קלוריות ביום</h2><div class="chart" id="kcalChart"></div></div>
+    <div class="block"><h2>צעדים ביום</h2><div class="chart" id="stepsChart"></div></div>
     <div class="block"><h2>לפי יום בשבוע</h2><div class="tbl" id="weekdayTbl"></div></div>
     <div class="block"><h2>מה משפיע על המתוק והמלוח</h2><div class="facts" id="compareFacts"></div></div>
   </section>
@@ -296,6 +298,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
         <li><div>להפעלה יומית: לשונית <b>אוטומציה</b> ← <b>שעה ביום</b> ← <b>23:30</b> ← להריץ את ״יומן כושר״. כדאי מאוחר בערב, כי קלוריות המנוחה והפעילות מצטברות לאורך היום. אפשר להריץ שוב מתי שרוצים; ההרצה האחרונה מחליפה את הקודמת.</div></li>
       </ol>
       <p class="muted small" style="margin:0">השמות בעברית יכולים להשתנות מעט בין גרסאות iOS. העמוד מזהה את השורה גם אם הסדר שונה או שחלק מהנתונים חסרים.</p>
+      <p class="muted small" style="margin:0"><b>דרך נוספת, בלי קיצור:</b> ב־Health מקישים על תמונת הפרופיל ← ״ייצוא כל נתוני הבריאות״, ושולחים את הקובץ export.zip ל־Claude בצ׳אט. כל המדדים והאימונים ייכנסו ליומן.</p>
     </div>
 
     <div class="block">
@@ -336,6 +339,9 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
   const BIN_LABEL = ["6–9", "9–12", "12–15", "15–18", "18–21", "21–24"].map((l) => "\u2066" + l + "\u2069").concat("לילה");
   const DAY_START = 4;           // food logged before 04:00 belongs to the previous day
   const NUTR = ["kcal", "protein", "carbs", "fat", "sugar", "fiber", "sodium"];
+  const WORKOUT = { Walking: "הליכה", Running: "ריצה", Cycling: "רכיבה", Swimming: "שחייה", Yoga: "יוגה", Pilates: "פילאטיס", Elliptical: "אליפטיקל",
+    TraditionalStrengthTraining: "אימון כוח", FunctionalStrengthTraining: "אימון כוח פונקציונלי", HighIntensityIntervalTraining: "אינטרוולים",
+    Dance: "ריקוד", Hiking: "טיול רגלי", StairClimbing: "מדרגות", CoreTraining: "אימון בטן", Cooldown: "שחרור", MixedCardio: "אירובי", Other: "אחר" };
 
   let db = null, sample = null;
   let days = {};                 // date -> day doc
@@ -644,9 +650,16 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
 
     // fitness
     const f = day.fit || {};
-    const cell = (v, l) => `<div><b>${v == null ? "—" : r0(v)}</b><span>${l}</span></div>`;
-    $("fit").innerHTML = cell(f.steps, "צעדים") + cell(f.active, "קלוריות פעילות") + cell(f.exercise, "דקות אימון") + cell(f.rhr, "דופק במנוחה") + cell(f.workouts, "אימונים");
-    $("fitWhen").textContent = f.importedAt ? "עודכן " + new Date(f.importedAt).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" }) : "";
+    const cell = (v, l, fmt) => v == null ? "" : `<div><b>${(fmt || r0)(v)}</b><span>${l}</span></div>`;
+    const cells =
+      cell(f.steps, "צעדים") + cell(f.distance, "ק״מ הליכה", r1) + cell(f.active, "קלוריות פעילות") + cell(f.basal, "קלוריות במנוחה") +
+      cell(f.exercise || null, "דקות אימון") + cell(f.flights, "קומות") + cell(f.hrAvg, "דופק ממוצע") + cell(f.hrMax, "דופק מקסימלי") +
+      cell(f.rhr, "דופק במנוחה") + cell(f.walkSpeed, "קמ״ש הליכה", r1) + cell(f.stepLen, "ס״מ אורך צעד", r0) + cell(f.asym, "% אסימטריה בהליכה", r1);
+    const wl = (f.workoutList || []).map((w) =>
+      `<div class="fact"><span>${esc(WORKOUT[w.type] || w.type)} · ${esc(w.start || "")}</span><b class="small num">${r0(w.min)} דק׳${w.km != null ? " · " + r1(w.km) + " ק״מ" : ""}${w.kcal != null ? " · " + r0(w.kcal) + " קל׳" : ""}${w.hrAvg != null ? " · דופק " + w.hrAvg + " (עד " + w.hrMax + ")" : ""}</b></div>`).join("");
+    $("fit").innerHTML = cells || '<div class="empty" style="grid-column:1/-1">אין נתוני פעילות ליום הזה.</div>';
+    $("workouts").innerHTML = wl ? `<div class="facts">${wl}</div>` : "";
+    $("fitWhen").textContent = f.importedAt ? (f.source === "export" ? "מייצוא Health" : "עודכן " + new Date(f.importedAt).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" })) : "";
   }
   function itemTag(i) {
     if (i.treat && i.taste === "sweet") return '<span class="tag sweet">מתוק</span>';
@@ -764,6 +777,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
 
     lineChart($("weightChart"), ds.map((d) => ({ x: d.date, y: d.weight })), { unit: "ק״ג", avg7: true, color: "var(--accent)" });
     barChart($("kcalChart"), ds.map((d) => { const t = dayTotals(d); return { x: d.date, y: t.n ? t.kcal : null }; }), targets.kcal);
+    barChart($("stepsChart"), ds.map((d) => ({ x: d.date, y: d.fit && d.fit.steps != null ? d.fit.steps : null })), 10000, { unit: "צעדים", label: "צעדים ביום", empty: "אין עדיין נתוני צעדים." });
 
     // calorie balance over the range (today excluded: it isn't finished)
     const bpts = ds.map((d) => { const b = d.date === todayKey() ? null : balanceOf(d); return { x: d.date, y: b ? b.bal : null }; });
@@ -817,6 +831,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     };
     split("לפי שינה", (d) => d.sleep == null ? null : d.sleep < 6.5, "פחות מ־6.5 שע׳", "6.5 ומעלה");
     split("לפי חלבון", (d) => dayTotals(d).protein >= targets.protein * 0.9, "הגעתי ליעד", "מתחת ליעד");
+    split("לפי צעדים", (d) => d.fit && d.fit.steps != null ? d.fit.steps >= 10000 : null, "10,000+ צעדים", "פחות");
     split("לפי אימון", (d) => d.fit && d.fit.exercise != null ? d.fit.exercise >= 20 : null, "20+ דק׳ אימון", "בלי");
     split("לפי ארוחת בוקר", (d) => (d.meals || []).some((m) => (m.items || []).some((i) => !i.treat && dayH(i.time || m.time) != null && dayH(i.time || m.time) < 10.5)), "אכלתי עד 10:30", "לא אכלתי");
     split("לפי מים", (d) => d.water ? d.water >= (targets.water || 8) : null, "הגעתי ליעד", "פחות");
@@ -859,9 +874,10 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     const first = vals[0], lastv = vals[vals.length - 1];
     el.insertAdjacentHTML("beforeend", `<div class="muted small num">שינוי בתקופה: <bdi dir="ltr">${lastv - first > 0 ? "+" : ""}${r1(lastv - first)}</bdi> ק״ג</div>`);
   }
-  function barChart(el, pts, target) {
+  function barChart(el, pts, target, o) {
+    o = o || { unit: "קלוריות", label: "קלוריות ביום", empty: "הגרף יתמלא כשיירשם אוכל." };
     const vals = pts.map((p) => p.y).filter((v) => v != null);
-    if (!vals.length) { el.innerHTML = '<div class="empty">הגרף יתמלא כשיירשם אוכל.</div>'; return; }
+    if (!vals.length) { el.innerHTML = `<div class="empty">${o.empty}</div>`; return; }
     let hi = Math.max(...vals, target || 0) * 1.1; const tk = ticks(0, hi, 4); hi = Math.max(hi, tk[tk.length - 1]);
     const n = pts.length, bw = (W - P.l - P.r) / n;
     const X = (i) => P.l + bw * (n - 1 - i) + bw / 2;
@@ -875,9 +891,9 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
       s += `<path d="M${X(i) - w / 2} ${Y(0)}V${y + r}Q${X(i) - w / 2} ${y} ${X(i) - w / 2 + r} ${y}H${X(i) + w / 2 - r}Q${X(i) + w / 2} ${y} ${X(i) + w / 2} ${y + r}V${Y(0)}Z" fill="var(--accent)"/>`;
     });
     if (target) s += `<line x1="${P.l}" x2="${W - P.r}" y1="${Y(target)}" y2="${Y(target)}" stroke="var(--ink-2)" stroke-width="1.5" stroke-dasharray="5 4"/><text x="${W - P.r}" y="${Y(target) - 5}" text-anchor="end">יעד ${target.toLocaleString("he-IL")}</text>`;
-    pts.forEach((p, i) => { s += `<rect x="${X(i) - bw / 2}" y="${P.t}" width="${bw}" height="${H - P.t - P.b}" fill="transparent" data-tip="${dateLabel(p.x)}: ${p.y == null ? "לא נרשם" : r0(p.y) + " קלוריות"}"/>`; });
-    el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="קלוריות ביום">${s}</svg>` +
-      `<div class="muted small num">ממוצע בימים עם רישום: ${r0(avg(vals))} קלוריות</div>`;
+    pts.forEach((p, i) => { s += `<rect x="${X(i) - bw / 2}" y="${P.t}" width="${bw}" height="${H - P.t - P.b}" fill="transparent" data-tip="${dateLabel(p.x)}: ${p.y == null ? "לא נרשם" : r0(p.y) + " " + o.unit}"/>`; });
+    el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${o.label}">${s}</svg>` +
+      `<div class="muted small num">ממוצע: ${r0(avg(vals))} ${o.unit}</div>`;
   }
   // diverging bars around zero: deficit below the line, surplus above
   function balanceChart(el, pts) {
@@ -919,16 +935,17 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     return [...set].sort().reverse();
   }
   function monthData(mk) {
-    const lines = ["date,weekday,weight,water_cups,mood,energy,sleep_h,steps,active_kcal,exercise_min,workouts,kcal,protein,carbs,fat,sugar,fiber,sweet_treat_kcal,salty_snack_kcal,energy_out_kcal,balance_kcal,note"];
+    const lines = ["date,weekday,weight,water_cups,mood,energy,sleep_h,steps,distance_km,flights,active_kcal,resting_kcal,exercise_min,workouts,workout_hr_avg,kcal,protein,carbs,fat,sugar,fiber,sweet_treat_kcal,salty_snack_kcal,energy_out_kcal,balance_kcal,note"];
     const detail = [];
     Object.keys(days).filter((k) => k.startsWith(mk)).sort().forEach((k) => {
       const d = days[k], t = dayTotals(d), f = d.fit || {}, tr = treats(d);
       const sk = tr.filter((x) => x.type === "sweet").reduce((s, x) => s + (x.kcal || 0), 0);
       const lk = tr.filter((x) => x.type === "salty").reduce((s, x) => s + (x.kcal || 0), 0);
-      lines.push([k, WD[parseKey(k).getDay()], d.weight ?? "", d.water || "", d.mood ?? "", d.energy ?? "", d.sleep ?? "", f.steps ?? "", f.active ?? "", f.exercise ?? "", f.workouts ?? "",
+      lines.push([k, WD[parseKey(k).getDay()], d.weight ?? "", d.water || "", d.mood ?? "", d.energy ?? "", d.sleep ?? "", f.steps ?? "", f.distance ?? "", f.flights ?? "", f.active ?? "", f.basal ?? "", f.exercise ?? "", f.workouts ?? "", f.hrAvg ?? "",
         t.n ? Math.round(t.kcal) : "", t.n ? Math.round(t.protein) : "", t.n ? Math.round(t.carbs) : "", t.n ? Math.round(t.fat) : "", t.n ? Math.round(t.sugar) : "", t.n ? Math.round(t.fiber) : "",
         t.n ? Math.round(sk) : "", t.n ? Math.round(lk) : "",
         energyOut(d) ? Math.round(energyOut(d).total) : "", balanceOf(d) ? Math.round(balanceOf(d).bal) : "", (d.note || "").replace(/[\n,]/g, " ").slice(0, 80)].join(","));
+      for (const w of f.workoutList || []) detail.push(`${k} ${w.start} WORKOUT ${w.type} ${Math.round(w.min)}min${w.km != null ? " " + w.km + "km" : ""}${w.kcal != null ? " " + w.kcal + "kcal" : ""}${w.hrAvg != null ? " hr_avg=" + w.hrAvg + " hr_max=" + w.hrMax : ""}`);
       for (const m of d.meals || []) for (const i of m.items || []) {
         detail.push(`${k} ${i.time || m.time || "??:??"} ${i.name} (${i.amount}) kcal=${i.kcal ?? "?"} protein=${i.protein ?? "?"} sugar=${i.sugar ?? "?"} taste=${i.taste}${i.treat ? " TREAT" : ""}`);
       }
