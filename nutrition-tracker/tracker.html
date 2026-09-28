@@ -1,0 +1,918 @@
+<title>יומן אוכל וחשקים</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Secular+One&family=IBM+Plex+Sans+Hebrew:wght@400;500;600&display=swap">
+<style>
+/* Layout: one narrow phone-first column; sticky date bar on top, tab bar at the bottom. Cards only for input blocks. */
+:root {
+  --bg: #f3f5f0;
+  --surface: #fbfcf9;
+  --line: #dde3d8;
+  --ink: #17201b;
+  --ink-2: #4c5a51;
+  --ink-3: #75837a;
+  --accent: #1f6b55;
+  --accent-soft: #dcebe3;
+  --accent-ink: #ffffff;
+  --salty: #2a78d6;
+  --sweet: #eb6834;
+  --salty-soft: #dbe8f8;
+  --sweet-soft: #fbe3d8;
+  --good: #0ca30c;
+  --warn: #b27400;
+  --bad: #d03b3b;
+  --font-display: "Secular One", "IBM Plex Sans Hebrew", "Arial Hebrew", sans-serif;
+  --font-body: "IBM Plex Sans Hebrew", "Arial Hebrew", "Segoe UI", system-ui, sans-serif;
+  --r: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121714; --surface: #1a211d; --line: #2c3730; --ink: #eef3ef; --ink-2: #b7c4bb; --ink-3: #8c9a91;
+    --accent: #5cc29f; --accent-soft: #1f3a30; --accent-ink: #0d1411;
+    --salty: #3987e5; --sweet: #d95926; --salty-soft: #1c2c42; --sweet-soft: #3d2419;
+    --good: #3cc13c; --warn: #e0a42a; --bad: #e66767;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121714; --surface: #1a211d; --line: #2c3730; --ink: #eef3ef; --ink-2: #b7c4bb; --ink-3: #8c9a91;
+  --accent: #5cc29f; --accent-soft: #1f3a30; --accent-ink: #0d1411;
+  --salty: #3987e5; --sweet: #d95926; --salty-soft: #1c2c42; --sweet-soft: #3d2419;
+  --good: #3cc13c; --warn: #e0a42a; --bad: #e66767;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 640px; margin: 0 auto; padding-inline: 16px; padding-block: 0 96px; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 400; text-wrap: balance; margin: 0; }
+h2 { font-size: 1.25rem; }
+h3 { font-size: 1.05rem; }
+.num { font-variant-numeric: tabular-nums; }
+.muted { color: var(--ink-3); }
+.small { font-size: 0.85rem; }
+button, input, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* top bar */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 12px 10px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 10px; }
+.top h1 { font-size: 1.3rem; flex: 1; }
+.datenav { display: flex; align-items: center; gap: 4px; }
+.datenav button { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); }
+.datenav .d { min-width: 96px; text-align: center; font-weight: 600; font-size: 0.9rem; }
+.status { font-size: 0.8rem; color: var(--ink-3); padding-block: 6px; }
+.status.err { color: var(--bad); }
+
+/* tabs */
+.tabs { position: fixed; bottom: 0; inset-inline: 0; z-index: 6; background: var(--surface); border-top: 1px solid var(--line); display: flex; justify-content: center; padding-bottom: env(safe-area-inset-bottom, 0px); }
+.tabs button { flex: 1; max-width: 160px; border: 0; background: none; padding-block: 12px; font-weight: 500; color: var(--ink-3); border-top: 3px solid transparent; }
+.tabs button[aria-selected="true"] { color: var(--accent); border-top-color: var(--accent); }
+
+section.view { display: grid; gap: 22px; padding-top: 14px; }
+.block { display: grid; gap: 10px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px; display: grid; gap: 12px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+
+/* metric inputs */
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+.metric { display: grid; gap: 4px; min-width: 0; }
+.metric label { font-size: 0.8rem; color: var(--ink-2); letter-spacing: 0.02em; }
+.field { width: 100%; border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 8px 10px; }
+textarea.field { resize: vertical; min-height: 64px; }
+.stepper { display: flex; align-items: center; gap: 6px; }
+.stepper button { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); font-size: 1.1rem; }
+.stepper .v { min-width: 44px; text-align: center; font-weight: 600; }
+.cups { display: flex; gap: 3px; flex-wrap: wrap; }
+.cup { width: 10px; height: 16px; border-radius: 2px 2px 4px 4px; border: 1px solid var(--salty); }
+.cup.on { background: var(--salty); }
+.scale { display: flex; gap: 4px; }
+.scale button { flex: 1; min-width: 0; height: 34px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); font-weight: 600; }
+.scale button.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+
+.btn { border: 1px solid var(--line); background: var(--bg); border-radius: 999px; padding: 7px 14px; font-weight: 500; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn:disabled { opacity: 0.55; cursor: default; }
+.chip { border: 1px solid var(--line); background: var(--bg); border-radius: 999px; padding: 5px 11px; font-size: 0.85rem; }
+.chip.on { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); font-weight: 600; }
+
+/* fitness strip */
+.fit { display: grid; grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); gap: 8px; }
+.fit div { display: grid; }
+.fit b { font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+.fit span { font-size: 0.75rem; color: var(--ink-3); }
+
+/* totals */
+.totals { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 8px; }
+.totals div { display: grid; padding: 8px 10px; border-radius: 8px; background: var(--bg); }
+.totals b { font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+.totals span { font-size: 0.75rem; color: var(--ink-3); }
+.bar { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+
+/* meal list */
+.list { display: grid; gap: 0; }
+.item { display: grid; grid-template-columns: 52px 1fr auto; gap: 10px; padding-block: 10px; border-top: 1px solid var(--line); align-items: start; }
+.item:first-child { border-top: 0; }
+.item .t { font-variant-numeric: tabular-nums; color: var(--ink-3); font-size: 0.85rem; padding-top: 2px; }
+.item .body { min-width: 0; display: grid; gap: 3px; }
+.item .txt { overflow-wrap: anywhere; }
+.item .macros { font-size: 0.8rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.item .k { font-weight: 600; font-variant-numeric: tabular-nums; text-align: end; }
+.item details { font-size: 0.8rem; color: var(--ink-2); }
+.item details summary { cursor: pointer; color: var(--ink-3); }
+.item .acts { display: flex; gap: 10px; margin-top: 4px; }
+.link { border: 0; background: none; padding: 0; color: var(--accent); font-size: 0.8rem; text-decoration: underline; text-underline-offset: 2px; }
+.link.danger { color: var(--bad); }
+.tag { display: inline-block; font-size: 0.72rem; padding: 1px 7px; border-radius: 999px; margin-inline-end: 4px; }
+.tag.sweet { background: var(--sweet-soft); color: var(--ink); border: 1px solid var(--sweet); }
+.tag.salty { background: var(--salty-soft); color: var(--ink); border: 1px solid var(--salty); }
+.tag.plain { background: var(--bg); border: 1px solid var(--line); color: var(--ink-2); }
+.edit { display: grid; grid-template-columns: repeat(auto-fit, minmax(72px, 1fr)); gap: 6px; }
+.edit label { font-size: 0.72rem; color: var(--ink-3); display: grid; gap: 2px; }
+.edit input { padding: 5px 6px; }
+
+/* craving buttons */
+.crave { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.crave button { border-radius: var(--r); padding: 12px 6px; border: 1.5px solid var(--line); background: var(--bg); font-family: var(--font-display); font-size: 1.1rem; }
+.crave button.sweet.on { background: var(--sweet-soft); border-color: var(--sweet); }
+.crave button.salty.on { background: var(--salty-soft); border-color: var(--salty); }
+.crave button.other.on { background: var(--accent-soft); border-color: var(--accent); }
+
+/* insights */
+.chart { width: 100%; overflow-x: auto; }
+.chart svg { direction: ltr; display: block; width: 100%; height: auto; }
+.chart text { fill: var(--ink-3); font-size: 11px; font-family: var(--font-body); }
+.grid-line { stroke: var(--line); stroke-width: 1; }
+.tip { position: fixed; pointer-events: none; z-index: 20; background: var(--ink); color: var(--bg); padding: 6px 9px; border-radius: 6px; font-size: 0.8rem; white-space: nowrap; }
+.heat { display: grid; grid-template-columns: 56px repeat(7, minmax(0, 1fr)); gap: 3px; font-size: 0.75rem; }
+.heat .h { color: var(--ink-3); text-align: center; }
+.heat .lab { color: var(--ink-2); align-self: center; font-weight: 600; }
+.heat .c { height: 38px; border-radius: 4px; display: grid; place-items: center; font-weight: 600; font-variant-numeric: tabular-nums; border: 1px solid var(--line); }
+.facts { display: grid; gap: 8px; }
+.fact { display: grid; grid-template-columns: 1fr auto; gap: 10px; padding-block: 8px; border-top: 1px solid var(--line); }
+.fact:first-child { border-top: 0; }
+.fact b { font-variant-numeric: tabular-nums; }
+.tbl { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 0.85rem; }
+th, td { padding: 6px 6px; text-align: start; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { color: var(--ink-3); font-weight: 500; font-size: 0.78rem; }
+td { font-variant-numeric: tabular-nums; }
+.legend { display: flex; gap: 14px; font-size: 0.8rem; color: var(--ink-2); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-inline-end: 5px; vertical-align: -1px; }
+
+/* report */
+.report { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.65; }
+.steps { display: grid; gap: 12px; padding: 0; margin: 0; list-style: none; counter-reset: s; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 28px 1fr; gap: 10px; }
+.steps li::before { content: counter(s); width: 26px; height: 26px; border-radius: 50%; background: var(--accent-soft); color: var(--ink); display: grid; place-items: center; font-weight: 600; font-size: 0.85rem; }
+.steps li > div { min-width: 0; }
+code, .code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.82rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 1px 5px; direction: ltr; unicode-bidi: isolate; }
+pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; text-align: left; }
+.empty { color: var(--ink-3); font-size: 0.9rem; padding-block: 6px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<div dir="rtl" lang="he">
+<div class="wrap">
+  <header class="top">
+    <h1>יומן אוכל וחשקים</h1>
+    <div class="datenav" id="datenav">
+      <button id="prevDay" aria-label="יום קודם">&rsaquo;</button>
+      <div class="d num" id="dateLabel"></div>
+      <button id="nextDay" aria-label="יום הבא">&lsaquo;</button>
+    </div>
+  </header>
+  <div class="status" id="status">מתחבר לאחסון…</div>
+
+  <!-- TODAY -->
+  <section class="view" id="view-today">
+    <div class="block">
+      <div class="head"><h2>ארוחות</h2><span class="muted small" id="mealCount"></span></div>
+      <div class="card">
+        <textarea class="field" id="mealText" placeholder="למשל: 2 פרוסות לחם מלא, קוטג׳ 5% חצי גביע, סלט ירקות עם כף שמן זית"></textarea>
+        <div class="row">
+          <input class="field" type="time" id="mealTime" style="width:auto">
+          <button class="btn primary" id="addMeal">הוספה וחישוב ערכים</button>
+          <span class="muted small" id="mealMsg"></span>
+        </div>
+      </div>
+      <div class="totals" id="totals"></div>
+      <div class="list" id="mealList"></div>
+    </div>
+
+    <div class="block">
+      <div class="head"><h2>חשק</h2><span class="muted small" id="craveCount"></span></div>
+      <div class="card">
+        <div class="crave" id="craveType">
+          <button class="sweet" data-v="sweet">מתוק</button>
+          <button class="salty" data-v="salty">מלוח</button>
+          <button class="other" data-v="other">אחר</button>
+        </div>
+        <div class="metric"><label>עוצמה</label><div class="scale" id="craveInt"></div></div>
+        <div class="metric"><label>מה הוביל לזה?</label><div class="row" id="craveTrig"></div></div>
+        <div class="metric"><label>נכנעתי לחשק?</label>
+          <div class="row" id="craveGave">
+            <button class="chip" data-v="no">לא</button>
+            <button class="chip" data-v="some">קצת</button>
+            <button class="chip" data-v="yes">כן</button>
+          </div>
+        </div>
+        <div class="row">
+          <input class="field" id="craveWhat" placeholder="על מה (שוקולד, במבה…)" style="flex:1;min-width:140px">
+          <input class="field" type="time" id="craveTime" style="width:auto">
+          <button class="btn primary" id="addCrave">שמירה</button>
+        </div>
+      </div>
+      <div class="list" id="craveList"></div>
+    </div>
+
+    <div class="block">
+      <h2>היום שלי</h2>
+      <div class="card">
+        <div class="metrics">
+          <div class="metric"><label for="weight">משקל בוקר (ק״ג)</label><input class="field num" id="weight" type="number" step="0.1" inputmode="decimal" placeholder="—"></div>
+          <div class="metric"><label for="sleep">שינה (שעות)</label><input class="field num" id="sleep" type="number" step="0.25" inputmode="decimal" placeholder="—"></div>
+          <div class="metric"><label>מים (כוסות של 250 מ״ל)</label>
+            <div class="stepper"><button id="waterMinus" aria-label="פחות">−</button><span class="v num" id="waterV">0</span><button id="waterPlus" aria-label="יותר">+</button></div>
+            <div class="cups" id="cups"></div>
+          </div>
+        </div>
+        <div class="metric"><label>מצב רוח</label><div class="scale" id="mood"></div></div>
+        <div class="metric"><label>אנרגיה</label><div class="scale" id="energy"></div></div>
+        <div class="metric"><label for="note">הערה</label><textarea class="field" id="note" placeholder="מחזור, אירוע, לחץ בעבודה, אכלתי בחוץ…"></textarea></div>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="head"><h2>פעילות מהאייפון</h2><span class="muted small" id="fitWhen"></span></div>
+      <div class="card">
+        <div class="fit" id="fit"></div>
+        <textarea class="field" id="fitPaste" placeholder="אחרי שהקיצור רץ: להקיש כאן ולבחור ״הדבק״"></textarea>
+        <div class="row"><button class="btn" id="fitSave">שמירת נתוני פעילות</button><span class="muted small" id="fitMsg"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INSIGHTS -->
+  <section class="view" id="view-insights" hidden>
+    <div class="row" id="rangeChips"></div>
+    <div class="block"><h2>מתי מגיעים החשקים</h2>
+      <div class="legend"><span><i style="background:var(--sweet)"></i>מתוק</span><span><i style="background:var(--salty)"></i>מלוח</span></div>
+      <div class="heat" id="heat"></div>
+      <div class="facts" id="craveFacts"></div>
+    </div>
+    <div class="block"><h2>משקל</h2><div class="chart" id="weightChart"></div></div>
+    <div class="block"><h2>קלוריות ביום</h2><div class="chart" id="kcalChart"></div></div>
+    <div class="block"><h2>לפי יום בשבוע</h2><div class="tbl" id="weekdayTbl"></div></div>
+    <div class="block"><h2>מה משפיע על החשקים</h2><div class="facts" id="compareFacts"></div></div>
+  </section>
+
+  <!-- MONTHLY -->
+  <section class="view" id="view-month" hidden>
+    <div class="block">
+      <h2>סיכום חודשי</h2>
+      <p class="muted small" style="margin:0">הניתוח עובר על כל הנתונים של החודש: ארוחות, חשקים, משקל, שינה ופעילות, ומחפש דפוסים לפי זמנים.</p>
+      <div class="row">
+        <select class="field" id="monthSel" style="width:auto"></select>
+        <button class="btn primary" id="runReport">ניתוח החודש</button>
+        <button class="btn" id="stopReport" hidden>עצירה</button>
+      </div>
+      <div class="muted small" id="reportMsg"></div>
+      <div class="card" id="reportCard" hidden><div class="report" id="reportText"></div></div>
+    </div>
+    <div class="block"><h3>סיכומים שמורים</h3><div class="list" id="reportList"></div></div>
+  </section>
+
+  <!-- SETUP -->
+  <section class="view" id="view-setup" hidden>
+    <div class="block">
+      <h2>יעדים</h2>
+      <div class="card">
+        <div class="metrics">
+          <div class="metric"><label for="tKcal">יעד קלוריות</label><input class="field num" id="tKcal" type="number" inputmode="numeric"></div>
+          <div class="metric"><label for="tProt">יעד חלבון (גרם)</label><input class="field num" id="tProt" type="number" inputmode="numeric"></div>
+          <div class="metric"><label for="tWater">יעד מים (כוסות)</label><input class="field num" id="tWater" type="number" inputmode="numeric"></div>
+        </div>
+        <div class="row"><button class="btn" id="saveTargets">שמירת יעדים</button><span class="muted small" id="targetsMsg"></span></div>
+      </div>
+    </div>
+    <div class="block">
+      <h2>קיצור הדרך באייפון</h2>
+      <p class="muted small" style="margin:0">הקיצור קורא את נתוני היום מאפליקציית Health, מעתיק אותם, ופותח את העמוד הזה. נשאר רק להדביק בתיבת ״פעילות מהאייפון״.</p>
+      <ol class="steps">
+        <li><div>באפליקציית <b>קיצורים</b> (Shortcuts): <b>+</b> ← לקרוא לקיצור ״יומן כושר״.</div></li>
+        <li><div>להוסיף פעולה <b>מצא דגימות בריאות</b> (Find Health Samples):<br>סוג = <b>צעדים</b>, תאריך התחלה = <b>היום</b>, קיבוץ לפי = <b>יום</b>.<br>אחריה <b>קבל פרטים של דגימת בריאות</b> ← <b>ערך</b>, ואז <b>הגדר משתנה</b> בשם <code>steps</code>.</div></li>
+        <li><div>לחזור על אותו דבר עבור:<br>
+          <b>אנרגיה פעילה</b> ← <code>active</code><br>
+          <b>דקות אימון</b> (Exercise Minutes) ← <code>exercise</code><br>
+          <b>דופק במנוחה</b> ← <code>rhr</code> (בלי קיבוץ, מיון לפי האחרון, הגבלה 1)<br>
+          <b>משקל</b> ← <code>weight</code> (אם יש משקל חכם; מיון לפי האחרון, הגבלה 1)</div></li>
+        <li><div>אופציונלי: <b>מצא אימונים</b> (Find Workouts) עם תאריך התחלה היום ← <b>ספירה</b> ← משתנה <code>workouts</code>.</div></li>
+        <li><div>פעולת <b>טקסט</b> עם השורה הבאה, כשכל שם בסוגריים מוחלף במשתנה המתאים. את התאריך מכניסים כ״תאריך נוכחי״ בפורמט מותאם <code>yyyy-MM-dd</code>:
+          <pre class="code">FIT date=[תאריך] steps=[steps] active=[active] exercise=[exercise] rhr=[rhr] weight=[weight] workouts=[workouts]</pre></div></li>
+        <li><div><b>העתק ללוח</b> (Copy to Clipboard), ואז <b>פתח כתובות URL</b> עם הקישור לעמוד הזה.</div></li>
+        <li><div>להפעלה יומית אוטומטית: לשונית <b>אוטומציה</b> ← <b>שעה ביום</b> (למשל 21:30) ← להריץ את ״יומן כושר״. אם חסר נתון, השדה פשוט נשאר ריק.</div></li>
+      </ol>
+      <p class="muted small" style="margin:0">השמות בעברית יכולים להשתנות מעט בין גרסאות iOS. העמוד מזהה את השורה גם אם הסדר שונה או שחלק מהנתונים חסרים.</p>
+    </div>
+  </section>
+</div>
+<nav class="tabs" role="tablist">
+  <button role="tab" data-tab="today" aria-selected="true">היום</button>
+  <button role="tab" data-tab="insights" aria-selected="false">תובנות</button>
+  <button role="tab" data-tab="month" aria-selected="false">חודשי</button>
+  <button role="tab" data-tab="setup" aria-selected="false">הגדרות</button>
+</nav>
+<div class="tip" id="tip" hidden></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const WD = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
+  const TRIGGERS = ["רעב", "שעמום", "לחץ", "עייפות", "אחרי ארוחה", "ראיתי אוכל", "חברתי", "מחזור", "הרגל"];
+  const BINS = [[6, 9], [9, 12], [12, 15], [15, 18], [18, 21], [21, 24], [0, 6]];
+  const BIN_LABEL = ["6–9", "9–12", "12–15", "15–18", "18–21", "21–24", "לילה"];
+
+  let db = null, sample = null;
+  let days = {};                 // date -> day doc
+  let reports = {};              // month -> report doc
+  let targets = { kcal: 1700, protein: 110, water: 8 };
+  let cur = todayKey();
+  let range = 30;
+  const writeChain = {};         // date -> promise, one write at a time per doc
+
+  // ---------- helpers ----------
+  function pad(n) { return String(n).padStart(2, "0"); }
+  function keyOf(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function todayKey() { return keyOf(new Date()); }
+  function parseKey(k) { const [y, m, d] = k.split("-").map(Number); return new Date(y, m - 1, d); }
+  function shift(k, n) { const d = parseKey(k); d.setDate(d.getDate() + n); return keyOf(d); }
+  function nowHM() { const d = new Date(); return pad(d.getHours()) + ":" + pad(d.getMinutes()); }
+  function hm2h(t) { if (!t) return null; const [h, m] = t.split(":").map(Number); return h + m / 60; }
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function num(v) { const n = Number(v); return Number.isFinite(n) ? n : null; }
+  function r0(v) { return v == null ? "—" : Math.round(v).toLocaleString("he-IL"); }
+  function r1(v) { return v == null ? "—" : (Math.round(v * 10) / 10).toLocaleString("he-IL"); }
+  function avg(a) { const b = a.filter((x) => x != null && Number.isFinite(x)); return b.length ? b.reduce((s, x) => s + x, 0) / b.length : null; }
+  function esc(s) { return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+  function blankDay(date) { return { date, meals: [], cravings: [], water: 0, weight: null, sleep: null, mood: null, energy: null, note: "", fit: null }; }
+  function getDay(date) { return days[date] ? JSON.parse(JSON.stringify(days[date])) : blankDay(date); }
+  function setStatus(t, err) { const s = $("status"); s.textContent = t; s.classList.toggle("err", !!err); }
+  function dateLabel(k) {
+    const d = parseKey(k), t = todayKey();
+    const rel = k === t ? "היום" : k === shift(t, -1) ? "אתמול" : "יום " + WD[d.getDay()];
+    return rel + " · " + d.getDate() + "." + (d.getMonth() + 1);
+  }
+  function dayTotals(day) {
+    const t = { kcal: 0, protein: 0, carbs: 0, fat: 0, sugar: 0, fiber: 0, sodium: 0, n: 0 };
+    for (const m of day.meals || []) {
+      if (m.kcal == null) continue;
+      t.n++;
+      for (const k of ["kcal", "protein", "carbs", "fat", "sugar", "fiber", "sodium"]) t[k] += Number(m[k]) || 0;
+    }
+    return t;
+  }
+
+  // ---------- storage ----------
+  async function saveDay(day) {
+    days[day.date] = day;              // optimistic local state
+    renderToday();
+    if (!db) { setStatus("האחסון לא זמין בתצוגה הזו. השינויים לא יישמרו.", true); return Promise.resolve(); }
+    const prev = writeChain[day.date] || Promise.resolve();
+    const p = prev.then(async () => {
+      try { await db.doc("days/" + day.date).set(days[day.date]); setStatus("נשמר"); }
+      catch (e) {
+        if (e && e.code === "unavailable") {
+          await new Promise((r) => setTimeout(r, 800 + Math.random() * 800));
+          try { await db.doc("days/" + day.date).set(days[day.date]); setStatus("נשמר"); return; } catch (e2) { e = e2; }
+        }
+        setStatus(e && e.code === "quota_exceeded" ? "האחסון מלא. צריך למחוק ימים ישנים." : "השמירה נכשלה. כדאי לרענן ולנסות שוב.", true);
+      }
+    });
+    writeChain[day.date] = p;
+    return p;
+  }
+
+  // ---------- nutrition estimate ----------
+  function mealPrompt(text) {
+    return [
+      "You estimate nutrition for a food diary kept by someone in Israel. The meal is described in Hebrew and may name Israeli products (e.g. קוטג׳ 5%, במבה, פיתה, חומוס, לחם אחיד, שוקו).",
+      "Split it into items. When an amount is missing, assume a typical Israeli home portion and say so in `amount`.",
+      "Use standard nutrition references (USDA, Israeli product labels). Round kcal to whole numbers and grams to one decimal.",
+      "Also classify the meal's taste profile as sweet, salty, mixed or neutral, and rate processing 0 (whole foods) to 3 (ultra-processed).",
+      'Reply with only JSON of this shape: {"items":[{"name":"...","amount":"...","kcal":0,"protein":0,"carbs":0,"fat":0,"sugar":0,"fiber":0,"sodium":0}],"totals":{"kcal":0,"protein":0,"carbs":0,"fat":0,"sugar":0,"fiber":0,"sodium":0},"taste":"sweet","processed":1,"note":"one short sentence in Hebrew about the assumptions"}',
+      "sodium is in mg; every other number is kcal or grams. Item names and amounts in Hebrew.",
+      "",
+      "Meal: " + text,
+    ].join("\n");
+  }
+  async function estimate(date, mealId) {
+    const day = getDay(date);
+    const m = day.meals.find((x) => x.id === mealId);
+    if (!m) return;
+    if (!sample) { $("mealMsg").textContent = "החישוב האוטומטי לא זמין כאן. אפשר להזין ערכים ידנית דרך ״עריכה״."; return; }
+    $("mealMsg").textContent = "מחשב ערכים…";
+    try {
+      const r = await sample.json(mealPrompt(m.text), { modelTier: "default" });
+      const t = (r && r.totals) || {};
+      const fresh = getDay(date);
+      const mm = fresh.meals.find((x) => x.id === mealId);
+      if (!mm) return;
+      for (const k of ["kcal", "protein", "carbs", "fat", "sugar", "fiber", "sodium"]) mm[k] = num(t[k]);
+      mm.items = Array.isArray(r.items) ? r.items.slice(0, 20).map((i) => ({ name: String(i.name || ""), amount: String(i.amount || ""), kcal: num(i.kcal), protein: num(i.protein) })) : [];
+      mm.taste = ["sweet", "salty", "mixed", "neutral"].includes(r.taste) ? r.taste : null;
+      mm.processed = num(r.processed);
+      mm.estNote = String(r.note || "").slice(0, 200);
+      mm.pending = false;
+      await saveDay(fresh);
+      $("mealMsg").textContent = "";
+    } catch (e) {
+      const fresh = getDay(date);
+      const mm = fresh.meals.find((x) => x.id === mealId);
+      if (mm) { mm.pending = false; await saveDay(fresh); }
+      const code = e && e.code;
+      $("mealMsg").textContent =
+        code === "not_granted" || code === "sampling_disabled" ? "החישוב האוטומטי לא אושר. אפשר להזין ערכים ידנית." :
+        code === "rate_limited" ? "יותר מדי בקשות. לנסות שוב בעוד כמה דקות." :
+        "החישוב נכשל. אפשר ללחוץ ״חישוב מחדש״.";
+    }
+  }
+
+  // ---------- fitness paste ----------
+  function parseNum(s) {
+    s = String(s).trim();
+    if (/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(s)) s = s.replace(/,/g, "");
+    else s = s.replace(",", ".");
+    const n = parseFloat(s);
+    return Number.isFinite(n) ? n : null;
+  }
+  function parseFit(text) {
+    const out = {};
+    const re = /\b(date|steps|active|exercise|rhr|weight|workouts|sleep)\s*[=:]\s*([0-9][0-9.,:\-\/]*)/gi;
+    let m;
+    while ((m = re.exec(text))) {
+      const k = m[1].toLowerCase(), v = m[2];
+      if (k === "date") {
+        const d = v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/) || null;
+        const d2 = v.match(/^(\d{1,2})[.\/](\d{1,2})[.\/](\d{4})/) || null;
+        if (d) out.date = d[1] + "-" + pad(+d[2]) + "-" + pad(+d[3]);
+        else if (d2) out.date = d2[3] + "-" + pad(+d2[2]) + "-" + pad(+d2[1]);
+      } else {
+        const n = parseNum(v);
+        if (n != null) out[k] = n;
+      }
+    }
+    return out;
+  }
+  async function saveFit() {
+    const txt = $("fitPaste").value;
+    const f = parseFit(txt);
+    const keys = Object.keys(f).filter((k) => k !== "date");
+    if (!keys.length) { $("fitMsg").textContent = "לא נמצאו נתונים. צריך להדביק את השורה שמתחילה ב־FIT."; return; }
+    const date = f.date || cur;
+    const day = getDay(date);
+    day.fit = { steps: f.steps ?? null, active: f.active ?? null, exercise: f.exercise ?? null, rhr: f.rhr ?? null, workouts: f.workouts ?? null, importedAt: new Date().toISOString() };
+    if (f.weight != null && day.weight == null) day.weight = Math.round(f.weight * 10) / 10;
+    if (f.sleep != null && day.sleep == null) day.sleep = f.sleep;
+    await saveDay(day);
+    $("fitPaste").value = "";
+    $("fitMsg").textContent = "נשמר ל" + dateLabel(date);
+    if (date !== cur) { cur = date; renderToday(); }
+  }
+
+  // ---------- today view ----------
+  const ui = { crave: null, intensity: 3, trig: new Set(), gave: null };
+  function scale(el, val, onPick, labels) {
+    el.innerHTML = "";
+    for (let i = 1; i <= 5; i++) {
+      const b = document.createElement("button");
+      b.textContent = labels ? labels[i - 1] : i;
+      b.className = val === i ? "on" : "";
+      b.setAttribute("aria-pressed", val === i ? "true" : "false");
+      b.onclick = () => onPick(i);
+      el.appendChild(b);
+    }
+  }
+  function renderToday() {
+    $("dateLabel").textContent = dateLabel(cur);
+    $("nextDay").disabled = cur >= todayKey();
+    const day = getDay(cur);
+
+    // meals
+    const meals = (day.meals || []).slice().sort((a, b) => (a.time || "").localeCompare(b.time || ""));
+    $("mealCount").textContent = meals.length ? meals.length + " ארוחות" : "";
+    $("mealList").innerHTML = meals.length ? "" : '<div class="empty">עוד לא נרשמו ארוחות ליום הזה. אפשר לכתוב בחופשיות מה אכלת, והערכים יחושבו.</div>';
+    for (const m of meals) $("mealList").appendChild(mealRow(m));
+
+    const t = dayTotals(day);
+    const pr = targets.protein ? Math.min(100, (t.protein / targets.protein) * 100) : 0;
+    const kc = targets.kcal ? Math.min(100, (t.kcal / targets.kcal) * 100) : 0;
+    const net = day.fit && day.fit.active != null ? t.kcal - day.fit.active : null;
+    $("totals").innerHTML =
+      `<div><b>${r0(t.kcal)}</b><span>קלוריות מתוך ${r0(targets.kcal)}</span><div class="bar"><i style="width:${kc}%"></i></div></div>` +
+      `<div><b>${r1(t.protein)}</b><span>חלבון (ג׳) מתוך ${r0(targets.protein)}</span><div class="bar"><i style="width:${pr}%"></i></div></div>` +
+      `<div><b>${r1(t.carbs)}</b><span>פחמימה (ג׳)</span></div>` +
+      `<div><b>${r1(t.fat)}</b><span>שומן (ג׳)</span></div>` +
+      `<div><b>${r1(t.sugar)}</b><span>סוכר (ג׳)</span></div>` +
+      `<div><b>${net == null ? "—" : r0(net)}</b><span>נטו אחרי פעילות</span></div>`;
+
+    // cravings
+    const cr = (day.cravings || []).slice().sort((a, b) => (a.time || "").localeCompare(b.time || ""));
+    $("craveCount").textContent = cr.length ? cr.length + " היום" : "";
+    $("craveList").innerHTML = "";
+    for (const c of cr) $("craveList").appendChild(craveRow(c, day));
+    document.querySelectorAll("#craveType button").forEach((b) => b.classList.toggle("on", b.dataset.v === ui.crave));
+    scale($("craveInt"), ui.intensity, (i) => { ui.intensity = i; renderToday(); });
+    $("craveTrig").innerHTML = "";
+    for (const tr of TRIGGERS) {
+      const b = document.createElement("button");
+      b.className = "chip" + (ui.trig.has(tr) ? " on" : "");
+      b.textContent = tr;
+      b.onclick = () => { ui.trig.has(tr) ? ui.trig.delete(tr) : ui.trig.add(tr); renderToday(); };
+      $("craveTrig").appendChild(b);
+    }
+    document.querySelectorAll("#craveGave button").forEach((b) => b.classList.toggle("on", b.dataset.v === ui.gave));
+
+    // metrics (don't clobber a field being typed in)
+    const act = document.activeElement;
+    if (act !== $("weight")) $("weight").value = day.weight ?? "";
+    if (act !== $("sleep")) $("sleep").value = day.sleep ?? "";
+    if (act !== $("note")) $("note").value = day.note || "";
+    $("waterV").textContent = day.water || 0;
+    const goal = Math.max(targets.water || 8, day.water || 0);
+    $("cups").innerHTML = Array.from({ length: goal }, (_, i) => `<span class="cup${i < (day.water || 0) ? " on" : ""}"></span>`).join("");
+    scale($("mood"), day.mood, (i) => { const d = getDay(cur); d.mood = d.mood === i ? null : i; saveDay(d); }, ["1 רע", "2", "3", "4", "5 מעולה"]);
+    scale($("energy"), day.energy, (i) => { const d = getDay(cur); d.energy = d.energy === i ? null : i; saveDay(d); }, ["1 מותש", "2", "3", "4", "5 מלא"]);
+
+    // fitness
+    const f = day.fit || {};
+    const cell = (v, l, fmt) => `<div><b>${v == null ? "—" : fmt(v)}</b><span>${l}</span></div>`;
+    $("fit").innerHTML = cell(f.steps, "צעדים", r0) + cell(f.active, "קלוריות פעילות", r0) + cell(f.exercise, "דקות אימון", r0) + cell(f.rhr, "דופק במנוחה", r0) + cell(f.workouts, "אימונים", r0);
+    $("fitWhen").textContent = f.importedAt ? "עודכן " + new Date(f.importedAt).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" }) : "";
+  }
+  function tasteTag(t) {
+    return t === "sweet" ? '<span class="tag sweet">מתוק</span>' : t === "salty" ? '<span class="tag salty">מלוח</span>' : t === "mixed" ? '<span class="tag plain">מעורב</span>' : "";
+  }
+  function mealRow(m) {
+    const el = document.createElement("div");
+    el.className = "item";
+    const macros = m.kcal == null ? (m.pending ? "מחשב…" : "אין ערכים עדיין") : `חלבון ${r1(m.protein)} · פחמ׳ ${r1(m.carbs)} · שומן ${r1(m.fat)} · סוכר ${r1(m.sugar)}`;
+    const items = (m.items || []).map((i) => `<div>${esc(i.name)} <span class="muted">(${esc(i.amount)})</span> · ${r0(i.kcal)} קל׳ · ${r1(i.protein)} ח׳</div>`).join("");
+    el.innerHTML =
+      `<div class="t">${esc(m.time || "")}</div>` +
+      `<div class="body"><div class="txt">${tasteTag(m.taste)}${esc(m.text)}</div><div class="macros">${macros}</div>` +
+      (items ? `<details><summary>פירוט${m.estNote ? " והנחות" : ""}</summary>${items}${m.estNote ? `<div class="muted">${esc(m.estNote)}</div>` : ""}</details>` : "") +
+      `<div class="acts"><button class="link" data-a="edit">עריכה</button><button class="link" data-a="re">חישוב מחדש</button><button class="link danger" data-a="del">מחיקה</button></div>` +
+      `<div class="edit" hidden></div></div>` +
+      `<div class="k">${m.kcal == null ? "—" : r0(m.kcal)}<div class="muted small">קל׳</div></div>`;
+    const box = el.querySelector(".edit");
+    el.querySelector('[data-a="edit"]').onclick = () => {
+      if (!box.hidden) { box.hidden = true; return; }
+      const f = [["time", "שעה", "time"], ["kcal", "קלוריות"], ["protein", "חלבון"], ["carbs", "פחמ׳"], ["fat", "שומן"], ["sugar", "סוכר"]];
+      box.innerHTML = f.map(([k, l, ty]) => `<label>${l}<input class="field num" data-k="${k}" type="${ty || "number"}" step="any" value="${esc(m[k] ?? "")}"></label>`).join("") + `<button class="btn" data-a="save">שמירה</button>`;
+      box.hidden = false;
+      box.querySelector('[data-a="save"]').onclick = () => {
+        const d = getDay(cur), mm = d.meals.find((x) => x.id === m.id);
+        if (!mm) return;
+        box.querySelectorAll("input").forEach((i) => { mm[i.dataset.k] = i.dataset.k === "time" ? i.value : num(i.value === "" ? null : i.value); });
+        saveDay(d);
+      };
+    };
+    el.querySelector('[data-a="re"]').onclick = () => { const d = getDay(cur), mm = d.meals.find((x) => x.id === m.id); if (mm) { mm.pending = true; saveDay(d).then(() => estimate(d.date, m.id)); } };
+    const del = el.querySelector('[data-a="del"]');
+    del.onclick = () => {
+      if (del.dataset.armed) { const d = getDay(cur); d.meals = d.meals.filter((x) => x.id !== m.id); saveDay(d); }
+      else { del.dataset.armed = "1"; del.textContent = "למחוק? להקיש שוב"; setTimeout(() => { del.dataset.armed = ""; del.textContent = "מחיקה"; }, 3000); }
+    };
+    return el;
+  }
+  function lastMealBefore(date, time) {
+    const h = hm2h(time);
+    const today = (getDay(date).meals || []).map((m) => hm2h(m.time)).filter((x) => x != null && x <= h);
+    if (today.length) return h - Math.max(...today);
+    const y = (getDay(shift(date, -1)).meals || []).map((m) => hm2h(m.time)).filter((x) => x != null);
+    return y.length ? h + 24 - Math.max(...y) : null;
+  }
+  function craveRow(c, day) {
+    const el = document.createElement("div");
+    el.className = "item";
+    const gap = lastMealBefore(day.date, c.time);
+    const gave = c.gave === "yes" ? "נכנעתי" : c.gave === "some" ? "קצת" : c.gave === "no" ? "התאפקתי" : "";
+    const typ = c.type === "sweet" ? '<span class="tag sweet">מתוק</span>' : c.type === "salty" ? '<span class="tag salty">מלוח</span>' : '<span class="tag plain">אחר</span>';
+    el.innerHTML =
+      `<div class="t">${esc(c.time)}</div>` +
+      `<div class="body"><div class="txt">${typ}${esc(c.what || "")}</div>` +
+      `<div class="macros">עוצמה ${c.intensity}/5${(c.triggers || []).length ? " · " + esc(c.triggers.join(", ")) : ""}${gap != null ? " · " + r1(gap) + " שע׳ אחרי ארוחה" : ""}</div>` +
+      `<div class="acts"><button class="link danger" data-a="del">מחיקה</button></div></div>` +
+      `<div class="k small">${gave}</div>`;
+    const del = el.querySelector('[data-a="del"]');
+    del.onclick = () => {
+      if (del.dataset.armed) { const d = getDay(cur); d.cravings = d.cravings.filter((x) => x.id !== c.id); saveDay(d); }
+      else { del.dataset.armed = "1"; del.textContent = "למחוק? להקיש שוב"; setTimeout(() => { del.dataset.armed = ""; del.textContent = "מחיקה"; }, 3000); }
+    };
+    return el;
+  }
+
+  // ---------- insights ----------
+  function rangeDays() {
+    const t = todayKey(), out = [];
+    for (let i = range - 1; i >= 0; i--) out.push(getDay(shift(t, -i)));
+    return out;
+  }
+  function renderInsights() {
+    $("rangeChips").innerHTML = "";
+    for (const [n, l] of [[14, "שבועיים"], [30, "30 יום"], [90, "3 חודשים"]]) {
+      const b = document.createElement("button");
+      b.className = "chip" + (range === n ? " on" : "");
+      b.textContent = l;
+      b.onclick = () => { range = n; renderInsights(); };
+      $("rangeChips").appendChild(b);
+    }
+    const ds = rangeDays();
+    const allCr = ds.flatMap((d) => (d.cravings || []).map((c) => Object.assign({ date: d.date, gap: lastMealBefore(d.date, c.time) }, c)));
+
+    // heat grid
+    const counts = { sweet: BINS.map(() => 0), salty: BINS.map(() => 0) };
+    for (const c of allCr) {
+      if (!counts[c.type]) continue;
+      const h = hm2h(c.time);
+      const i = BINS.findIndex(([a, b]) => h >= a && h < b);
+      if (i >= 0) counts[c.type][i]++;
+    }
+    const max = Math.max(1, ...counts.sweet, ...counts.salty);
+    let html = '<div></div>' + BIN_LABEL.map((l) => `<div class="h num">${l}</div>`).join("");
+    for (const [k, l] of [["sweet", "מתוק"], ["salty", "מלוח"]]) {
+      html += `<div class="lab">${l}</div>`;
+      counts[k].forEach((n, i) => {
+        const a = n ? 0.18 + 0.82 * (n / max) : 0;
+        const ink = a > 0.55 ? "#ffffff" : "var(--ink)";
+        html += `<div class="c" data-tip="${l} · ${BIN_LABEL[i]}: ${n} פעמים" style="background:color-mix(in srgb, var(--${k}) ${Math.round(a * 100)}%, var(--surface));color:${ink}">${n || ""}</div>`;
+      });
+    }
+    $("heat").innerHTML = html;
+
+    const facts = [];
+    const sw = allCr.filter((c) => c.type === "sweet"), sa = allCr.filter((c) => c.type === "salty");
+    facts.push(["חשקים בתקופה", `${allCr.length} (מתוק ${sw.length} · מלוח ${sa.length})`]);
+    const peak = (arr) => { if (!arr.length) return "—"; const c = BINS.map(() => 0); arr.forEach((x) => { const h = hm2h(x.time); const i = BINS.findIndex(([a, b]) => h >= a && h < b); if (i >= 0) c[i]++; }); return BIN_LABEL[c.indexOf(Math.max(...c))]; };
+    facts.push(["שעת שיא למתוק / למלוח", `${peak(sw)} / ${peak(sa)}`]);
+    const g = avg(allCr.map((c) => c.gap));
+    facts.push(["זמן ממוצע מהארוחה האחרונה", g == null ? "—" : r1(g) + " שעות"]);
+    const decided = allCr.filter((c) => c.gave);
+    facts.push(["נכנעתי לחשק", decided.length ? Math.round((100 * decided.filter((c) => c.gave !== "no").length) / decided.length) + "%" : "—"]);
+    const tc = {}; allCr.forEach((c) => (c.triggers || []).forEach((t) => (tc[t] = (tc[t] || 0) + 1)));
+    const top = Object.entries(tc).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([t, n]) => `${t} (${n})`).join(", ");
+    facts.push(["טריגרים מובילים", top || "—"]);
+    $("craveFacts").innerHTML = allCr.length ? facts.map(([a, b]) => `<div class="fact"><span>${a}</span><b>${esc(b)}</b></div>`).join("") : '<div class="empty">עוד אין חשקים רשומים. כל פעם שמתחשק מתוק או מלוח, שתי הקשות בלשונית ״היום״ מספיקות.</div>';
+
+    lineChart($("weightChart"), ds.map((d) => ({ x: d.date, y: d.weight })), { unit: "ק״ג", avg7: true, color: "var(--accent)" });
+    barChart($("kcalChart"), ds.map((d) => { const t = dayTotals(d); return { x: d.date, y: t.n ? t.kcal : null }; }), targets.kcal);
+
+    // weekday table
+    const rows = WD.map((w, i) => {
+      const sub = ds.filter((d) => parseKey(d.date).getDay() === i);
+      const withFood = sub.filter((d) => dayTotals(d).n);
+      return {
+        w, n: sub.length,
+        kcal: avg(withFood.map((d) => dayTotals(d).kcal)),
+        prot: avg(withFood.map((d) => dayTotals(d).protein)),
+        sweet: sub.reduce((s, d) => s + (d.cravings || []).filter((c) => c.type === "sweet").length, 0),
+        salty: sub.reduce((s, d) => s + (d.cravings || []).filter((c) => c.type === "salty").length, 0),
+        mood: avg(sub.map((d) => d.mood)),
+        water: avg(sub.map((d) => d.water || null)),
+      };
+    });
+    $("weekdayTbl").innerHTML = "<table><thead><tr><th>יום</th><th>קלוריות</th><th>חלבון</th><th>מתוק</th><th>מלוח</th><th>מצב רוח</th><th>מים</th></tr></thead><tbody>" +
+      rows.map((r) => `<tr><td>${r.w}</td><td>${r0(r.kcal)}</td><td>${r0(r.prot)}</td><td>${r.sweet}</td><td>${r.salty}</td><td>${r1(r.mood)}</td><td>${r1(r.water)}</td></tr>`).join("") + "</tbody></table>";
+
+    // comparisons
+    const cmp = [];
+    const perDay = (d) => (d.cravings || []).filter((c) => c.type !== "other").length;
+    const split = (label, pred, a, b) => {
+      const A = ds.filter((d) => pred(d) === true), B = ds.filter((d) => pred(d) === false);
+      if (A.length < 3 || B.length < 3) return;
+      cmp.push([label, `${a}: ${r1(avg(A.map(perDay)))} · ${b}: ${r1(avg(B.map(perDay)))}`]);
+    };
+    split("חשקים ביום לפי שינה", (d) => d.sleep == null ? null : d.sleep < 6.5, "פחות מ־6.5 שע׳", "6.5 ומעלה");
+    split("לפי חלבון", (d) => { const t = dayTotals(d); return t.n ? t.protein >= targets.protein * 0.9 : null; }, "הגעתי ליעד", "מתחת ליעד");
+    split("לפי אימון", (d) => d.fit && d.fit.exercise != null ? d.fit.exercise >= 20 : null, "20+ דק׳ אימון", "בלי");
+    split("לפי ארוחת בוקר", (d) => (d.meals || []).length ? (d.meals || []).some((m) => hm2h(m.time) != null && hm2h(m.time) < 10.5) : null, "אכלתי עד 10:30", "לא אכלתי");
+    split("לפי מים", (d) => d.water ? d.water >= (targets.water || 8) : null, "הגעתי ליעד", "פחות");
+    $("compareFacts").innerHTML = cmp.length ? cmp.map(([a, b]) => `<div class="fact"><span>${a}</span><b class="small">${b}</b></div>`).join("") + '<div class="muted small">ממוצע חשקי מתוק ומלוח ביום. כל השוואה מוצגת רק כשיש לפחות 3 ימים בכל צד.</div>' : '<div class="empty">ההשוואות יופיעו אחרי כשבוע של רישום שינה, חלבון ופעילות.</div>';
+  }
+
+  // charts: one scale per chart, thin marks, hover tooltip
+  const W = 600, H = 200, P = { l: 40, r: 12, t: 12, b: 26 };
+  function ticks(lo, hi, n) {
+    const step0 = (hi - lo) / n, mag = Math.pow(10, Math.floor(Math.log10(step0 || 1)));
+    const step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((s) => s >= step0) || mag * 10;
+    const out = []; for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(+v.toFixed(6));
+    return out;
+  }
+  function xLabels(pts, xs) {
+    const every = Math.ceil(pts.length / 6);
+    return pts.map((p, i) => (i % every === 0 || i === pts.length - 1) ? `<text x="${xs(i)}" y="${H - 8}" text-anchor="middle">${+p.x.slice(8)}.${+p.x.slice(5, 7)}</text>` : "").join("");
+  }
+  function lineChart(el, pts, o) {
+    const vals = pts.map((p) => p.y).filter((v) => v != null);
+    if (vals.length < 2) { el.innerHTML = '<div class="empty">צריך לפחות שתי שקילות כדי לראות מגמה. כדאי להישקל בבוקר, לפני אוכל.</div>'; return; }
+    let lo = Math.min(...vals), hi = Math.max(...vals); const padv = Math.max(0.5, (hi - lo) * 0.15); lo -= padv; hi += padv;
+    const tk = ticks(lo, hi, 4); lo = Math.min(lo, tk[0]); hi = Math.max(hi, tk[tk.length - 1]);
+    // RTL reading: newest on the left
+    const X = (i) => P.l + ((W - P.l - P.r) * (pts.length - 1 - i)) / Math.max(1, pts.length - 1);
+    const Y = (v) => P.t + (H - P.t - P.b) * (1 - (v - lo) / (hi - lo));
+    let s = tk.map((v) => `<line class="grid-line" x1="${P.l}" x2="${W - P.r}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${P.l - 6}" y="${Y(v) + 4}" text-anchor="end">${v}</text>`).join("");
+    s += xLabels(pts, X);
+    const a7 = pts.map((p, i) => { const w = pts.slice(Math.max(0, i - 6), i + 1).map((q) => q.y).filter((v) => v != null); return w.length >= 3 ? w.reduce((x, y) => x + y, 0) / w.length : null; });
+    const path = (arr) => { let d = "", pen = false; arr.forEach((v, i) => { if (v == null) { pen = false; return; } d += (pen ? "L" : "M") + X(i).toFixed(1) + " " + Y(v).toFixed(1); pen = true; }); return d; };
+    if (o.avg7) s += `<path d="${path(a7)}" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-dasharray="4 4"/>`;
+    const conn = []; let last = null; pts.forEach((p, i) => { if (p.y != null) { if (last != null) conn.push(`M${X(last.i)} ${Y(last.y)}L${X(i)} ${Y(p.y)}`); last = { i, y: p.y }; } });
+    s += `<path d="${conn.join("")}" fill="none" stroke="${o.color}" stroke-width="2"/>`;
+    pts.forEach((p, i) => { if (p.y != null) s += `<circle cx="${X(i)}" cy="${Y(p.y)}" r="4" fill="${o.color}" stroke="var(--surface)" stroke-width="2"/>`; });
+    pts.forEach((p, i) => { s += `<rect x="${X(i) - 8}" y="${P.t}" width="16" height="${H - P.t - P.b}" fill="transparent" data-tip="${dateLabel(p.x)}: ${p.y == null ? "אין שקילה" : r1(p.y) + " " + o.unit}${a7[i] != null ? " · ממוצע 7 ימים " + r1(a7[i]) : ""}"/>`; });
+    el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="משקל לאורך זמן">${s}</svg><div class="legend"><span><i style="background:var(--accent)"></i>שקילה</span><span><i style="background:var(--ink-3)"></i>ממוצע נע 7 ימים</span></div>`;
+    const first = vals[0], lastv = vals[vals.length - 1];
+    el.insertAdjacentHTML("beforeend", `<div class="muted small num">שינוי בתקופה: ${lastv - first > 0 ? "+" : ""}${r1(lastv - first)} ק״ג</div>`);
+  }
+  function barChart(el, pts, target) {
+    const vals = pts.map((p) => p.y).filter((v) => v != null);
+    if (!vals.length) { el.innerHTML = '<div class="empty">הגרף יתמלא כשיירשמו ארוחות.</div>'; return; }
+    let hi = Math.max(...vals, target || 0) * 1.1; const tk = ticks(0, hi, 4); hi = Math.max(hi, tk[tk.length - 1]);
+    const n = pts.length, bw = (W - P.l - P.r) / n;
+    const X = (i) => P.l + bw * (n - 1 - i) + bw / 2;
+    const Y = (v) => P.t + (H - P.t - P.b) * (1 - v / hi);
+    let s = tk.map((v) => `<line class="grid-line" x1="${P.l}" x2="${W - P.r}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${P.l - 6}" y="${Y(v) + 4}" text-anchor="end">${v.toLocaleString("he-IL")}</text>`).join("");
+    s += xLabels(pts, X);
+    const w = Math.max(2, Math.min(18, bw - 2));
+    pts.forEach((p, i) => {
+      if (p.y == null) return;
+      const y = Y(p.y), h = Y(0) - y, r = Math.min(4, w / 2, h);
+      s += `<path d="M${X(i) - w / 2} ${Y(0)}V${y + r}Q${X(i) - w / 2} ${y} ${X(i) - w / 2 + r} ${y}H${X(i) + w / 2 - r}Q${X(i) + w / 2} ${y} ${X(i) + w / 2} ${y + r}V${Y(0)}Z" fill="var(--accent)"/>`;
+    });
+    if (target) s += `<line x1="${P.l}" x2="${W - P.r}" y1="${Y(target)}" y2="${Y(target)}" stroke="var(--ink-2)" stroke-width="1.5" stroke-dasharray="5 4"/><text x="${W - P.r}" y="${Y(target) - 5}" text-anchor="end">יעד ${target.toLocaleString("he-IL")}</text>`;
+    pts.forEach((p, i) => { s += `<rect x="${X(i) - bw / 2}" y="${P.t}" width="${bw}" height="${H - P.t - P.b}" fill="transparent" data-tip="${dateLabel(p.x)}: ${p.y == null ? "לא נרשם" : r0(p.y) + " קלוריות"}"/>`; });
+    el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="קלוריות ביום">${s}</svg>` +
+      `<div class="muted small num">ממוצע בימים עם רישום: ${r0(avg(vals))} קלוריות</div>`;
+  }
+  // tooltip
+  document.addEventListener("pointerover", (e) => {
+    const t = e.target.closest && e.target.closest("[data-tip]"); const tip = $("tip");
+    if (!t) { tip.hidden = true; return; }
+    tip.textContent = t.getAttribute("data-tip"); tip.hidden = false;
+  });
+  document.addEventListener("pointermove", (e) => {
+    const tip = $("tip"); if (tip.hidden) return;
+    const x = Math.min(window.innerWidth - tip.offsetWidth - 8, Math.max(8, e.clientX - tip.offsetWidth / 2));
+    tip.style.left = x + "px"; tip.style.top = Math.max(8, e.clientY - 44) + "px";
+  });
+
+  // ---------- monthly report ----------
+  function monthKeys() {
+    const set = new Set(Object.keys(days).map((k) => k.slice(0, 7)));
+    set.add(todayKey().slice(0, 7));
+    return [...set].sort().reverse();
+  }
+  function monthData(mk) {
+    const lines = ["date,weekday,weight,water_cups,mood,energy,sleep_h,steps,active_kcal,exercise_min,workouts,kcal,protein,carbs,fat,sugar,note"];
+    const detail = [];
+    Object.keys(days).filter((k) => k.startsWith(mk)).sort().forEach((k) => {
+      const d = days[k], t = dayTotals(d), f = d.fit || {};
+      lines.push([k, WD[parseKey(k).getDay()], d.weight ?? "", d.water || "", d.mood ?? "", d.energy ?? "", d.sleep ?? "", f.steps ?? "", f.active ?? "", f.exercise ?? "", f.workouts ?? "",
+        t.n ? Math.round(t.kcal) : "", t.n ? Math.round(t.protein) : "", t.n ? Math.round(t.carbs) : "", t.n ? Math.round(t.fat) : "", t.n ? Math.round(t.sugar) : "", (d.note || "").replace(/[\n,]/g, " ").slice(0, 80)].join(","));
+      for (const m of d.meals || []) detail.push(`MEAL ${k} ${m.time} kcal=${m.kcal == null ? "?" : Math.round(m.kcal)} protein=${m.protein == null ? "?" : Math.round(m.protein)} taste=${m.taste || "?"} processed=${m.processed ?? "?"} :: ${String(m.text).slice(0, 90)}`);
+      for (const c of d.cravings || []) { const g = lastMealBefore(k, c.time); detail.push(`CRAVING ${k} ${c.time} type=${c.type} intensity=${c.intensity} gave_in=${c.gave || "?"} hours_since_meal=${g == null ? "?" : g.toFixed(1)} triggers=${(c.triggers || []).join("|") || "-"} :: ${String(c.what || "").slice(0, 40)}`); }
+    });
+    return { csv: lines.join("\n"), detail: detail.join("\n"), n: lines.length - 1 };
+  }
+  let reportCtl = null;
+  async function runReport() {
+    const mk = $("monthSel").value;
+    const data = monthData(mk);
+    if (data.n < 5) { $("reportMsg").textContent = "יש פחות מ־5 ימים עם נתונים בחודש הזה. הניתוח יהיה שימושי יותר עם עוד רישום."; if (!data.n) return; }
+    if (!sample) { $("reportMsg").textContent = "הניתוח לא זמין בתצוגה הזו."; return; }
+    const prompt = [
+      "את/ה מנתח/ת יומן תזונה אישי של אדם בישראל שמנסה לרדת במשקל ולהבין את החשקים שלו למתוק ולמלוח. כתוב/כתבי בעברית, בגוף שני בלשון רבים או ניטרלית (בלי להניח מגדר), בטון ענייני וחם.",
+      "יעדים: " + targets.kcal + " קלוריות, " + targets.protein + " גרם חלבון, " + targets.water + " כוסות מים ביום.",
+      "המבנה (כותרות קצרות, טקסט רגיל בלי Markdown מודגש):",
+      "1. בשורה אחת: מה קרה החודש (משקל התחלה/סוף, ממוצעים).",
+      "2. חשקים: באילו שעות ובאילו ימים מגיע מתוק ומתי מלוח, כמה זמן אחרי ארוחה, אילו טריגרים, ומה קורה ביום שאחרי לילה קצר, יום עם מעט חלבון או יום בלי אימון.",
+      "3. מתי התזונה עבדה ומתי פחות: אילו ימים/שעות/הרגלים מתחברים לשבוע עם ירידה במשקל, ואילו לעלייה או לעצירה. להתייחס לשעת ארוחה ראשונה ואחרונה, לפיזור החלבון ולנשנושים בערב.",
+      "4. מצב רוח, מים ושינה מול אכילה.",
+      "5. שלוש המלצות קונקרטיות לחודש הבא, כל אחת קשורה לדפוס שמצאת בנתונים.",
+      "להבחין בין דפוס ברור לבין מקרה בודד, ולציין כשהנתונים מעטים מכדי להסיק. לא לתת עצה רפואית. עד 450 מילים.",
+      "",
+      "חודש: " + mk,
+      "נתונים יומיים (CSV):", data.csv, "", "ארוחות וחשקים:", data.detail.slice(0, 40000),
+    ].join("\n");
+    $("runReport").disabled = true; $("stopReport").hidden = false;
+    $("reportCard").hidden = false; $("reportText").textContent = "חושב… (יכול לקחת עד דקה)";
+    reportCtl = new AbortController();
+    try {
+      const { text, truncated } = await sample(prompt, { modelTier: "complex", cache: false, signal: reportCtl.signal, onText: ({ text }) => { $("reportText").textContent = text; } });
+      $("reportText").textContent = text;
+      $("reportMsg").textContent = truncated ? "הסיכום נקטע באמצע." : "";
+      if (db) { await db.doc("reports/" + mk).set({ month: mk, text, createdAt: new Date().toISOString(), days: data.n }); $("reportMsg").textContent += " נשמר."; }
+    } catch (e) {
+      $("reportText").textContent = e.text || "";
+      if (e.code !== "cancelled") $("reportMsg").textContent =
+        e.code === "not_granted" || e.code === "sampling_disabled" ? "הניתוח לא אושר בתצוגה הזו." :
+        e.code === "rate_limited" ? "יותר מדי בקשות. לנסות שוב מאוחר יותר." : "הניתוח נכשל. אפשר לנסות שוב.";
+    } finally { $("runReport").disabled = false; $("stopReport").hidden = true; }
+  }
+  function renderMonth() {
+    const sel = $("monthSel"), keep = sel.value;
+    sel.innerHTML = monthKeys().map((k) => `<option value="${k}">${k.slice(5)}/${k.slice(0, 4)}</option>`).join("");
+    if (keep && [...sel.options].some((o) => o.value === keep)) sel.value = keep;
+    const list = Object.values(reports).sort((a, b) => b.month.localeCompare(a.month));
+    $("reportList").innerHTML = list.length ? "" : '<div class="empty">עוד אין סיכומים. בסוף כל חודש: לבחור חודש וללחוץ ״ניתוח החודש״.</div>';
+    for (const r of list) {
+      const el = document.createElement("details");
+      el.className = "item"; el.style.display = "block";
+      el.innerHTML = `<summary><b>${r.month.slice(5)}/${r.month.slice(0, 4)}</b> <span class="muted small">· ${r.days} ימים</span></summary><div class="report" style="padding-top:8px">${esc(r.text)}</div>`;
+      $("reportList").appendChild(el);
+    }
+  }
+
+  // ---------- wiring ----------
+  function tab(name) {
+    document.querySelectorAll(".tabs button").forEach((b) => b.setAttribute("aria-selected", b.dataset.tab === name ? "true" : "false"));
+    for (const v of ["today", "insights", "month", "setup"]) $("view-" + v).hidden = v !== name;
+    $("datenav").style.visibility = name === "today" ? "visible" : "hidden";
+    if (name === "insights") renderInsights();
+    if (name === "month") renderMonth();
+    if (name === "setup") { $("tKcal").value = targets.kcal; $("tProt").value = targets.protein; $("tWater").value = targets.water; }
+    try { localStorage.setItem("tab", name); } catch (e) {}
+    window.scrollTo(0, 0);
+  }
+  document.querySelectorAll(".tabs button").forEach((b) => (b.onclick = () => tab(b.dataset.tab)));
+  $("prevDay").onclick = () => { cur = shift(cur, -1); renderToday(); };
+  $("nextDay").onclick = () => { if (cur < todayKey()) { cur = shift(cur, 1); renderToday(); } };
+  $("mealTime").value = nowHM(); $("craveTime").value = nowHM();
+
+  $("addMeal").onclick = async () => {
+    const text = $("mealText").value.trim();
+    if (!text) { $("mealMsg").textContent = "צריך לכתוב מה אכלת."; return; }
+    const d = getDay(cur);
+    const m = { id: uid(), time: $("mealTime").value || nowHM(), text: text.slice(0, 500), kcal: null, protein: null, carbs: null, fat: null, sugar: null, fiber: null, sodium: null, pending: !!sample };
+    d.meals.push(m);
+    $("mealText").value = ""; $("mealTime").value = nowHM();
+    await saveDay(d);
+    estimate(cur, m.id);
+  };
+  document.querySelectorAll("#craveType button").forEach((b) => (b.onclick = () => { ui.crave = ui.crave === b.dataset.v ? null : b.dataset.v; renderToday(); }));
+  document.querySelectorAll("#craveGave button").forEach((b) => (b.onclick = () => { ui.gave = ui.gave === b.dataset.v ? null : b.dataset.v; renderToday(); }));
+  $("addCrave").onclick = async () => {
+    if (!ui.crave) { $("craveCount").textContent = "לבחור מתוק, מלוח או אחר"; return; }
+    const d = getDay(cur);
+    d.cravings.push({ id: uid(), time: $("craveTime").value || nowHM(), type: ui.crave, intensity: ui.intensity, triggers: [...ui.trig], gave: ui.gave, what: $("craveWhat").value.trim().slice(0, 120) });
+    ui.crave = null; ui.intensity = 3; ui.trig.clear(); ui.gave = null; $("craveWhat").value = ""; $("craveTime").value = nowHM();
+    await saveDay(d);
+  };
+  const bindNum = (id, key) => $(id).addEventListener("change", () => { const d = getDay(cur); const v = $(id).value; d[key] = v === "" ? null : num(v); saveDay(d); });
+  bindNum("weight", "weight"); bindNum("sleep", "sleep");
+  $("note").addEventListener("change", () => { const d = getDay(cur); d.note = $("note").value.slice(0, 1000); saveDay(d); });
+  $("waterPlus").onclick = () => { const d = getDay(cur); d.water = (d.water || 0) + 1; saveDay(d); };
+  $("waterMinus").onclick = () => { const d = getDay(cur); d.water = Math.max(0, (d.water || 0) - 1); saveDay(d); };
+  $("fitSave").onclick = saveFit;
+  $("fitPaste").addEventListener("paste", () => setTimeout(() => { if (/FIT|steps\s*=/.test($("fitPaste").value)) saveFit(); }, 0));
+  $("runReport").onclick = runReport;
+  $("stopReport").onclick = () => reportCtl && reportCtl.abort();
+  $("saveTargets").onclick = async () => {
+    targets = { kcal: num($("tKcal").value) || targets.kcal, protein: num($("tProt").value) || targets.protein, water: num($("tWater").value) || targets.water };
+    if (db) { try { await db.doc("settings/targets").set(targets); $("targetsMsg").textContent = "נשמר"; } catch (e) { $("targetsMsg").textContent = "השמירה נכשלה"; } }
+    renderToday();
+  };
+
+  try { const t = localStorage.getItem("tab"); if (t && t !== "today") tab(t); } catch (e) {}
+  renderToday();
+
+  // ---------- capabilities ----------
+  (async () => {
+    const [d, s] = await Promise.all([claude.use("db"), claude.use("sample")]);
+    sample = s;
+    db = d;
+    if (!db) { setStatus("האחסון לא זמין בתצוגה הזו, אז שום דבר לא יישמר. צריך לפתוח את העמוד מ־claude.ai.", true); return; }
+    setStatus("טוען…");
+    db.collection("days").orderBy("date", "desc").limit(1000).onSnapshot((snap) => {
+      const next = {};
+      snap.docs.forEach((doc) => { const v = doc.data(); if (v && v.date) next[v.date] = v; });
+      days = next;
+      if (!snap.metadata.hasPendingWrites) setStatus(Object.keys(days).length ? "מסונכרן · " + Object.keys(days).length + " ימים ביומן" : "מסונכרן. אפשר להתחיל לרשום.");
+      renderToday();
+      if (!$("view-insights").hidden) renderInsights();
+      if (!$("view-month").hidden) renderMonth();
+    }, () => setStatus("החיבור לאחסון נותק. צריך לרענן את העמוד.", true));
+    db.collection("reports").onSnapshot((snap) => {
+      reports = {}; snap.docs.forEach((doc) => { const v = doc.data(); if (v && v.month) reports[v.month] = v; });
+      if (!$("view-month").hidden) renderMonth();
+    }, () => {});
+    db.doc("settings/targets").onSnapshot((snap) => {
+      if (snap.exists) { const v = snap.data(); targets = { kcal: num(v.kcal) || 1700, protein: num(v.protein) || 110, water: num(v.water) || 8 }; renderToday(); }
+    }, () => {});
+  })();
+})();
+</script>
