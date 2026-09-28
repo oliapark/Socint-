@@ -1,70 +1,58 @@
 <title>יומן אוכל וחשקים</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Secular+One&family=IBM+Plex+Sans+Hebrew:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Rubik:wght@400;500;600&display=swap">
 <style>
-/* Layout: one narrow phone-first column; sticky date bar on top, tab bar at the bottom. Cards only for input blocks. */
+/* Layout: phone-first column; sticky date bar, bottom tab bar. Deliberately dark-only: black ground, candy pink + baby blue, rounded type. */
 :root {
-  --bg: #f3f5f0;
-  --surface: #fbfcf9;
-  --line: #dde3d8;
-  --ink: #17201b;
-  --ink-2: #4c5a51;
-  --ink-3: #75837a;
-  --accent: #1f6b55;
-  --accent-soft: #dcebe3;
-  --accent-ink: #ffffff;
-  --salty: #2a78d6;
-  --sweet: #eb6834;
-  --salty-soft: #dbe8f8;
-  --sweet-soft: #fbe3d8;
-  --c1: #2a78d6;
-  --c2: #eb6834;
-  --c3: #1baf7a;
-  --deficit: #2a78d6;
-  --surplus: #e34948;
-  --good: #0ca30c;
-  --warn: #b27400;
-  --bad: #d03b3b;
-  --font-display: "Secular One", "IBM Plex Sans Hebrew", "Arial Hebrew", sans-serif;
-  --font-body: "IBM Plex Sans Hebrew", "Arial Hebrew", "Segoe UI", system-ui, sans-serif;
-  --r: 12px;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #121714; --surface: #1a211d; --line: #2c3730; --ink: #eef3ef; --ink-2: #b7c4bb; --ink-3: #8c9a91;
-    --accent: #5cc29f; --accent-soft: #1f3a30; --accent-ink: #0d1411;
-    --salty: #3987e5; --sweet: #d95926; --salty-soft: #1c2c42; --sweet-soft: #3d2419;
-    --good: #3cc13c; --warn: #e0a42a; --bad: #e66767; --deficit: #3987e5; --surplus: #e66767; --c1: #3987e5; --c2: #d95926; --c3: #199e70;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #121714; --surface: #1a211d; --line: #2c3730; --ink: #eef3ef; --ink-2: #b7c4bb; --ink-3: #8c9a91;
-  --accent: #5cc29f; --accent-soft: #1f3a30; --accent-ink: #0d1411;
-  --salty: #3987e5; --sweet: #d95926; --salty-soft: #1c2c42; --sweet-soft: #3d2419;
-  --good: #3cc13c; --warn: #e0a42a; --bad: #e66767; --deficit: #3987e5; --surplus: #e66767; --c1: #3987e5; --c2: #d95926; --c3: #199e70;
+  --bg: #0d0a0f;
+  --surface: #18121c;
+  --surface-2: #221828;
+  --line: #33263a;
+  --ink: #fff0f7;
+  --ink-2: #e3cadb;
+  --ink-3: #a88fa2;
+  --accent: #ff8dc7;
+  --accent-2: #8fd0ff;
+  --accent-soft: #3a1c2e;
+  --blue-soft: #16263a;
+  --accent-ink: #1a0b13;
+  --sweet: #e2508e;
+  --salty: #3a96dc;
+  --sweet-soft: #3a1a2b;
+  --salty-soft: #16263a;
+  --c1: #3a96dc;
+  --c2: #e2508e;
+  --c3: #9a70ea;
+  --deficit: #3a96dc;
+  --surplus: #f06a6a;
+  --good: #6fe0b0;
+  --warn: #ffc27a;
+  --bad: #ff6b8e;
+  --font-display: "Fredoka", "Rubik", "Arial Hebrew", sans-serif;
+  --font-body: "Rubik", "Arial Hebrew", "Segoe UI", system-ui, sans-serif;
+  --r: 18px;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
 .wrap { max-width: 640px; margin: 0 auto; padding-inline: 16px; padding-block: 0 96px; }
-h1, h2, h3 { font-family: var(--font-display); font-weight: 400; text-wrap: balance; margin: 0; }
-h2 { font-size: 1.25rem; }
-h3 { font-size: 1.05rem; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; text-wrap: balance; margin: 0; letter-spacing: 0.01em; }
+h2 { font-size: 1.22rem; }
+h3 { font-size: 1.02rem; }
 .num { font-variant-numeric: tabular-nums; }
 .muted { color: var(--ink-3); }
 .small { font-size: 0.85rem; }
 button, input, textarea, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
 
 /* top bar */
 .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 12px 10px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 10px; }
-.top h1 { font-size: 1.3rem; flex: 1; }
+.top h1 { font-size: 1.3rem; flex: 1; color: var(--accent); }
 .datenav { display: flex; align-items: center; gap: 4px; }
-.datenav button { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); }
+.datenav button { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--accent); }
 .datenav .d { min-width: 96px; text-align: center; font-weight: 600; font-size: 0.9rem; }
 .status { font-size: 0.8rem; color: var(--ink-3); padding-block: 6px; }
 .status.err { color: var(--bad); }
@@ -72,7 +60,7 @@ button { cursor: pointer; }
 /* tabs */
 .tabs { position: fixed; bottom: 0; inset-inline: 0; z-index: 6; background: var(--surface); border-top: 1px solid var(--line); display: flex; justify-content: center; padding-bottom: env(safe-area-inset-bottom, 0px); }
 .tabs button { flex: 1; max-width: 160px; border: 0; background: none; padding-block: 12px; font-weight: 500; color: var(--ink-3); border-top: 3px solid transparent; }
-.tabs button[aria-selected="true"] { color: var(--accent); border-top-color: var(--accent); }
+.tabs button[aria-selected="true"] { color: var(--accent); border-top-color: var(--accent); font-weight: 600; }
 
 section.view { display: grid; gap: 22px; padding-top: 14px; }
 .block { display: grid; gap: 10px; }
@@ -84,27 +72,29 @@ section.view { display: grid; gap: 22px; padding-top: 14px; }
 .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
 .metric { display: grid; gap: 4px; min-width: 0; }
 .metric label { font-size: 0.8rem; color: var(--ink-2); letter-spacing: 0.02em; }
-.field { width: 100%; border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 8px 10px; }
+.field { width: 100%; border: 1px solid var(--line); background: var(--surface-2); border-radius: 12px; padding: 9px 12px; }
+.field:focus { border-color: var(--accent); outline: none; }
 textarea.field { resize: vertical; min-height: 64px; }
 .stepper { display: flex; align-items: center; gap: 6px; }
-.stepper button { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); font-size: 1.1rem; }
+.stepper button { width: 34px; height: 34px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); font-size: 1.1rem; }
 .stepper .v { min-width: 44px; text-align: center; font-weight: 600; }
 .water { gap: 8px; margin-top: 2px; }
 .waterrow { display: flex; align-items: center; gap: 10px; }
-.wbtn { height: 40px; min-width: 40px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); font-size: 1.1rem; }
-.wbtn.plus { background: var(--salty); border-color: var(--salty); color: #ffffff; font-weight: 600; padding-inline: 12px; font-size: 0.95rem; }
+.wbtn { height: 40px; min-width: 40px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface-2); font-size: 1.1rem; }
+.wbtn.plus { background: var(--accent-2); border-color: var(--accent-2); color: var(--accent-ink); font-weight: 600; padding-inline: 12px; font-size: 0.95rem; }
 .cups { display: flex; gap: 4px; flex-wrap: wrap; flex: 1; min-width: 0; }
-.cup { width: 18px; height: 26px; border-radius: 3px 3px 7px 7px; border: 1.5px solid var(--salty); background: transparent; padding: 0; }
-.cup.on { background: var(--salty); }
+.cup { width: 18px; height: 26px; border-radius: 3px 3px 8px 8px; border: 1.5px solid var(--accent-2); background: transparent; padding: 0; }
+.cup.on { background: var(--accent-2); }
 .scale { display: flex; gap: 4px; }
-.scale button { flex: 1; min-width: 0; height: 34px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); font-weight: 600; }
+.scale button { flex: 1; min-width: 0; height: 36px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); font-weight: 600; }
 .scale button.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 
-.btn { border: 1px solid var(--line); background: var(--bg); border-radius: 999px; padding: 7px 14px; font-weight: 500; }
-.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn { border: 1px solid var(--line); background: var(--surface-2); border-radius: 999px; padding: 8px 16px; font-weight: 500; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; box-shadow: 0 4px 18px -6px var(--accent); }
+.btn.blue { background: var(--accent-2); color: var(--accent-ink); border-color: var(--accent-2); font-weight: 600; }
 .btn:disabled { opacity: 0.55; cursor: default; }
-.chip { border: 1px solid var(--line); background: var(--bg); border-radius: 999px; padding: 5px 11px; font-size: 0.85rem; }
-.chip.on { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); font-weight: 600; }
+.chip { border: 1px solid var(--line); background: var(--surface-2); border-radius: 999px; padding: 5px 11px; font-size: 0.85rem; }
+.chip.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
 
 /* fitness strip */
 .fit { display: grid; grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); gap: 8px; }
@@ -114,7 +104,7 @@ textarea.field { resize: vertical; min-height: 64px; }
 
 /* totals */
 .totals { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 8px; }
-.totals div { display: grid; padding: 8px 10px; border-radius: 8px; background: var(--bg); }
+.totals div { display: grid; padding: 8px 10px; border-radius: 12px; background: var(--surface-2); }
 .totals b { font-size: 1.1rem; font-variant-numeric: tabular-nums; }
 .totals span { font-size: 0.75rem; color: var(--ink-3); }
 .bar { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
@@ -133,7 +123,7 @@ textarea.field { resize: vertical; min-height: 64px; }
 .addwk summary { cursor: pointer; }
 .cycle { gap: 6px; }
 .subnav { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 58px); z-index: 4; background: var(--bg); display: flex; gap: 6px; overflow-x: auto; padding-block: 6px; scrollbar-width: none; }
-.subnav button { flex: none; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 14px; font-weight: 500; }
+.subnav button { flex: none; border: 1px solid var(--line); background: var(--surface-2); border-radius: 999px; padding: 6px 14px; font-weight: 500; }
 .subnav button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 .sec { display: grid; gap: 22px; }
 .cal { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 1fr); gap: 3px; overflow-x: auto; padding-bottom: 4px; }
@@ -144,7 +134,7 @@ textarea.field { resize: vertical; min-height: 64px; }
 .hbar .track i { display: block; height: 100%; border-radius: 5px; }
 .hbar .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; unicode-bidi: plaintext; text-align: right; }
 .stack { display: flex; height: 26px; border-radius: 6px; overflow: hidden; gap: 2px; }
-.stack i { display: grid; place-items: center; color: #ffffff; font-style: normal; font-size: 0.78rem; font-weight: 600; min-width: 0; }
+.stack i { display: grid; place-items: center; color: var(--accent-ink); font-style: normal; font-size: 0.78rem; font-weight: 600; min-width: 0; }
 .pill { display: inline-block; font-size: 0.72rem; padding: 1px 8px; border-radius: 999px; border: 1px solid currentColor; }
 .strip { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
 .strip div { border-radius: 5px; padding: 4px 2px; text-align: center; font-size: 0.72rem; border: 1px solid var(--line); font-variant-numeric: tabular-nums; }
@@ -161,16 +151,47 @@ textarea.field { resize: vertical; min-height: 64px; }
 .tag { display: inline-block; font-size: 0.72rem; padding: 1px 7px; border-radius: 999px; margin-inline-end: 4px; }
 .tag.sweet { background: var(--sweet-soft); color: var(--ink); border: 1px solid var(--sweet); }
 .tag.salty { background: var(--salty-soft); color: var(--ink); border: 1px solid var(--salty); }
-.tag.plain { background: var(--bg); border: 1px solid var(--line); color: var(--ink-2); }
+.tag.plain { background: var(--surface-2); border: 1px solid var(--line); color: var(--ink-2); }
 .edit { display: grid; grid-template-columns: repeat(auto-fit, minmax(72px, 1fr)); gap: 6px; }
 .edit label { font-size: 0.72rem; color: var(--ink-3); display: grid; gap: 2px; }
 .edit input { padding: 5px 6px; }
 
 
+/* today */
+.hero { background: radial-gradient(120% 90% at 100% 0%, #3a1830 0%, transparent 60%), radial-gradient(90% 80% at 0% 100%, #142a40 0%, transparent 60%), var(--surface); gap: 14px; }
+.hero-top { display: flex; align-items: center; gap: 16px; }
+.ring { width: 132px; flex: none; }
+.ring svg { display: block; width: 100%; height: auto; }
+.ring .big { font-family: var(--font-display); font-size: 30px; font-weight: 600; fill: var(--ink); }
+.ring .lab { font-size: 12px; fill: var(--ink-3); }
+.eq { display: grid; gap: 6px; min-width: 0; flex: 1; }
+.eq div { display: flex; justify-content: space-between; gap: 8px; font-size: 0.9rem; }
+.eq div b { font-variant-numeric: tabular-nums; }
+.eq .tot { border-top: 1px solid var(--line); padding-top: 6px; font-weight: 600; }
+.macros3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.mac { display: grid; gap: 4px; min-width: 0; }
+.mac .l { font-size: 0.78rem; color: var(--ink-3); display: flex; justify-content: space-between; gap: 4px; }
+.mac .v { font-size: 0.95rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.mac .bar { height: 8px; border-radius: 4px; }
+.pills { display: flex; gap: 6px; flex-wrap: wrap; }
+.pills span { font-size: 0.78rem; padding: 3px 10px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); color: var(--ink-2); }
+.duo { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.add { gap: 10px; border-color: #4a2a44; }
+.slot { display: grid; gap: 2px; }
+.slot-h { display: flex; justify-content: space-between; align-items: baseline; padding-block: 10px 4px; border-bottom: 1px dashed var(--line); }
+.slot-h h3 { color: var(--accent); }
+.slot-h .muted { font-variant-numeric: tabular-nums; }
+.plan { display: grid; gap: 10px; }
+.pmeal { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; display: grid; gap: 6px; }
+.pmeal .ph { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.pmeal ul { margin: 0; padding-inline-start: 18px; font-size: 0.9rem; color: var(--ink-2); }
+
 /* insights */
 .chart { width: 100%; overflow-x: auto; }
 .chart svg { direction: ltr; display: block; width: 100%; height: auto; }
-.chart text { fill: var(--ink-3); font-size: 11px; font-family: var(--font-body); }
+.chart text { fill: var(--ink-3); font-size: 12px; font-family: var(--font-body); }
+.take { margin: 0; font-size: 0.92rem; color: var(--ink-2); }
+.take b { color: var(--ink); }
 .grid-line { stroke: var(--line); stroke-width: 1; }
 .tip { position: fixed; pointer-events: none; z-index: 20; background: var(--ink); color: var(--bg); padding: 6px 9px; border-radius: 6px; font-size: 0.8rem; white-space: nowrap; }
 .heat { display: grid; grid-template-columns: 56px repeat(7, minmax(0, 1fr)); gap: 3px; font-size: 0.75rem; }
@@ -195,7 +216,7 @@ td { font-variant-numeric: tabular-nums; }
 .steps li { counter-increment: s; display: grid; grid-template-columns: 28px 1fr; gap: 10px; }
 .steps li::before { content: counter(s); width: 26px; height: 26px; border-radius: 50%; background: var(--accent-soft); color: var(--ink); display: grid; place-items: center; font-weight: 600; font-size: 0.85rem; }
 .steps li > div { min-width: 0; }
-code, .code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.82rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 1px 5px; direction: ltr; unicode-bidi: isolate; }
+code, .code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.82rem; background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; padding: 1px 5px; direction: ltr; unicode-bidi: isolate; }
 pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; text-align: left; }
 .empty { color: var(--ink-3); font-size: 0.9rem; padding-block: 6px; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
@@ -215,33 +236,46 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
 
   <!-- TODAY -->
   <section class="view" id="view-today">
-    <div class="water card" aria-label="מים">
-      <div class="head"><h3>מים</h3><span class="muted small num" id="waterMl"></span></div>
-      <div class="waterrow">
-        <button class="wbtn" id="waterMinus" aria-label="כוס אחת פחות">−</button>
-        <div class="cups" id="cups"></div>
-        <button class="wbtn plus" id="waterPlus" aria-label="עוד כוס">+ כוס</button>
+    <div class="hero card" id="hero"></div>
+
+    <div class="duo">
+      <div class="water card" aria-label="מים">
+        <div class="head"><h3>מים</h3><span class="muted small num" id="waterMl"></span></div>
+        <div class="waterrow">
+          <button class="wbtn" id="waterMinus" aria-label="כוס אחת פחות">−</button>
+          <div class="cups" id="cups"></div>
+          <button class="wbtn plus" id="waterPlus" aria-label="עוד כוס">+ כוס</button>
+        </div>
+      </div>
+      <div class="cycle card" id="cycleCard">
+        <div class="head"><h3>מחזור</h3><span class="muted small" id="cyclePhase"></span></div>
+        <div class="small" id="cycleInfo"></div>
+        <div><button class="btn" id="cycleBtn"></button></div>
       </div>
     </div>
 
-    <div class="cycle card" id="cycleCard">
-      <div class="head"><h3>מחזור</h3><span class="muted small" id="cyclePhase"></span></div>
-      <div class="row"><span class="small" id="cycleInfo"></span><button class="btn" id="cycleBtn"></button></div>
+    <div class="add card" id="addCard">
+      <h2>הוספת ארוחה</h2>
+      <div class="row" id="slotChips" role="radiogroup" aria-label="סוג ארוחה"></div>
+      <div class="row">
+        <label class="small muted" for="mealTime">שעה</label>
+        <input class="field num" type="time" id="mealTime" style="width:auto">
+        <button class="link" id="nowBtn">עכשיו</button>
+      </div>
+      <textarea class="field" id="mealText" placeholder="מה אכלת בארוחה הזו? למשל: פיתה כוסמין עם 2 ביצים, סלט וכפית שמן זית"></textarea>
+      <div id="recentWrap" hidden><div class="muted small">אחרונים, בהקשה:</div><div class="row" id="recent"></div></div>
+      <div class="row"><button class="btn primary" id="addMeal">הוספה וחישוב ערכים</button><span class="muted small" id="mealMsg"></span></div>
     </div>
 
     <div class="block">
-      <div class="head"><h2>ארוחות</h2><span class="muted small" id="mealCount"></span></div>
-      <div class="card">
-        <textarea class="field" id="mealText" placeholder="מה אכלת? שורה לכל דבר. אפשר להוסיף שעה בתחילת שורה, למשל:&#10;08:30 פיתה כוסמין עם 2 ביצים וסלט&#10;16:00 2 קוביות שוקולד מריר"></textarea>
-        <div class="row">
-          <input class="field" type="time" id="mealTime" style="width:auto">
-          <button class="btn primary" id="addMeal">הוספה וחישוב ערכים</button>
-        </div>
-        <div class="muted small" id="mealMsg"></div>
-      </div>
-      <div class="totals" id="totals"></div>
+      <div class="head"><h2>היומן של היום</h2><span class="muted small" id="mealCount"></span></div>
+      <div id="mealList"></div>
       <div class="balance" id="balance"></div>
-      <div class="list" id="mealList"></div>
+    </div>
+
+    <div class="block">
+      <div class="head"><h2>תפריט מוצע</h2><button class="btn blue" id="planBtn">הצעה להמשך היום</button></div>
+      <div id="planBox"></div>
     </div>
 
     <div class="block">
@@ -292,7 +326,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     <div class="sec" data-sec="weight">
       <div class="block"><h2>שינויים במשקל</h2>
         <p class="muted small" style="margin:0">הנקודות הן השקילות. הקו המלא הוא משקל המגמה, שמסנן קפיצות של מים ומלח. הקו המקווקו הוא הכיוון ב־12 השבועות האחרונים.</p>
-        <div class="chart" id="weightHistory"></div>
+        <p class="take" id="tk-weight"></p><div class="chart" id="weightHistory"></div>
         <div class="facts" id="weightFacts"></div>
       </div>
       <div class="block"><h2>כמה את באמת שורפת</h2>
@@ -301,14 +335,14 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
       </div>
       <div class="block"><h2>גירעון קלורי</h2>
         <div class="facts" id="balanceFacts"></div>
-        <div class="chart" id="balanceChart"></div>
+        <p class="take" id="tk-bal"></p><div class="chart" id="balanceChart"></div>
       </div>
     </div>
 
     <div class="sec" data-sec="food" hidden>
-      <div class="block"><h2>קלוריות ביום</h2><div class="chart" id="kcalChart"></div></div>
-      <div class="block"><h2>חלוקת מאקרו</h2><div id="macroSplit"></div></div>
-      <div class="block"><h2>מה מביא הכי הרבה קלוריות</h2><div id="topFoods"></div></div>
+      <div class="block"><h2>קלוריות ביום</h2><p class="take" id="tk-kcal"></p><div class="chart" id="kcalChart"></div></div>
+      <div class="block"><h2>חלוקת מאקרו</h2><p class="take" id="tk-macro"></p><div id="macroSplit"></div></div>
+      <div class="block"><h2>מה מביא הכי הרבה קלוריות</h2><p class="take" id="tk-top"></p><div id="topFoods"></div></div>
       <div class="block"><h2>סיבים, נתרן וסוכר</h2><div id="micro"></div></div>
       <div class="block"><h2>אמצע שבוע מול סוף שבוע</h2><div class="tbl" id="weekendTbl"></div></div>
       <div class="block"><h2>סיכום שבועי</h2><div class="tbl" id="weeklyTbl"></div></div>
@@ -318,27 +352,27 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     <div class="sec" data-sec="habits" hidden>
       <div class="block"><h2>לוח עקביות</h2>
         <div class="row" id="calMetric"></div>
-        <div id="consistCal"></div>
+        <p class="take" id="tk-cons"></p><div id="consistCal"></div>
         <div class="facts" id="consistFacts"></div>
       </div>
       <div class="block"><h2>חלון אכילה</h2>
         <p class="muted small" style="margin:0">כל פס הוא יום: מהאוכל הראשון עד האחרון. רק פריטים עם שעה נכנסים.</p>
-        <div class="chart" id="windowChart"></div>
+        <p class="take" id="tk-window"></p><div class="chart" id="windowChart"></div>
         <div class="facts" id="windowFacts"></div>
       </div>
       <div class="block"><h2>מתי מגיעים המתוק והמלוח</h2>
         <p class="muted small" style="margin:0">מזוהה אוטומטית מהאוכל שנרשם: קינוחים, שוקולד, משקאות מתוקים, חטיפים מלוחים וכו׳. מספר בכל משבצת = כמה פעמים.</p>
         <div class="legend"><span><i style="background:var(--sweet)"></i>מתוק</span><span><i style="background:var(--salty)"></i>מלוח</span></div>
-        <div class="heat" id="heat"></div>
+        <p class="take" id="tk-heat"></p><div class="heat" id="heat"></div>
         <div class="facts" id="craveFacts"></div>
       </div>
       <div class="block"><h2>מה משפיע על המתוק והמלוח</h2><div class="facts" id="compareFacts"></div></div>
     </div>
 
     <div class="sec" data-sec="activity" hidden>
-      <div class="block"><h2>צעדים ביום</h2><div class="chart" id="stepsChart"></div></div>
-      <div class="block"><h2>לוח צעדים</h2><div id="stepsCal"></div></div>
-      <div class="block"><h2>מהירות הליכה</h2><p class="muted small" style="margin:0">ממוצע שבועי. מהירות שעולה לאורך זמן היא סימן לכושר שמשתפר.</p><div class="chart" id="speedChart"></div></div>
+      <div class="block"><h2>צעדים ביום</h2><p class="take" id="tk-steps"></p><div class="chart" id="stepsChart"></div></div>
+      <div class="block"><h2>לוח צעדים</h2><p class="take" id="tk-scal"></p><div id="stepsCal"></div></div>
+      <div class="block"><h2>מהירות הליכה</h2><p class="muted small" style="margin:0">ממוצע שבועי. מהירות שעולה לאורך זמן היא סימן לכושר שמשתפר.</p><p class="take" id="tk-speed"></p><div class="chart" id="speedChart"></div></div>
       <div class="block"><h2>אורך צעד</h2><div class="chart" id="stepLenChart"></div></div>
       <div class="block"><h2>צעדים מול אכילה</h2><div class="facts" id="stepsVsFood"></div></div>
     </div>
@@ -351,7 +385,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
       <div class="block"><h2>5 השבועות הקרובים</h2><div id="forecast"></div></div>
       <div class="block"><h2>משקל לפי יום במעגל</h2>
         <p class="muted small" style="margin:0">כל מעגל בצבע אחר. כך רואים באיזה שלב המשקל נוטה לעלות, גם כשזה רק מים.</p>
-        <div class="chart" id="cycleWeight"></div>
+        <p class="take" id="tk-cw"></p><div class="chart" id="cycleWeight"></div>
       </div>
       <div class="block"><h2>מתוק ומלוח לפי יום במעגל</h2><div id="cycleCrave"></div></div>
     </div>
@@ -480,6 +514,8 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
   function r0(v) { return v == null ? "—" : Math.round(v).toLocaleString("he-IL"); }
   function r1(v) { return v == null ? "—" : (Math.round(v * 10) / 10).toLocaleString("he-IL"); }
   function avg(a) { const b = a.filter((x) => x != null && Number.isFinite(x)); return b.length ? b.reduce((s, x) => s + x, 0) / b.length : null; }
+  // signed number that reads correctly inside Hebrew text
+  function signed(v, dig) { const n = (dig ? r1 : r0)(Math.abs(v)); return "\u2066" + (v < 0 ? "−" : v > 0 ? "+" : "") + n + "\u2069"; }
   function esc(s) { return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
   function blankDay(date) { return { date, meals: [], water: 0, weight: null, sleep: null, mood: null, energy: null, note: "", fit: null }; }
   function getDay(date) { return days[date] ? JSON.parse(JSON.stringify(days[date])) : blankDay(date); }
@@ -791,15 +827,85 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     }
   }
   function setWater(n) { const d = getDay(cur); d.water = Math.max(0, n); saveDay(d); }
+  const SLOTS = [["breakfast", "בוקר"], ["lunch", "צהריים"], ["dinner", "ערב"], ["snack", "נשנושים וביניים"]];
+  function slotFromTime(t) {
+    const h = hm2h(t); if (h == null) return null;
+    return h >= 4 && h < 11 ? "breakfast" : h >= 12 && h < 15.5 ? "lunch" : h >= 18 && h < 22 ? "dinner" : "snack";
+  }
+  function slotOf(m) { return m.slot || slotFromTime(m.time) || "other"; }
+  function macroTargets() {
+    const k = targets.kcal || 1700, p = targets.protein || 110;
+    const fat = Math.round((k * 0.3) / 9);
+    return { protein: p, fat, carbs: Math.max(0, Math.round((k - p * 4 - fat * 9) / 4)) };
+  }
+  function ringSvg(eaten, goal) {
+    const r = 54, c = 2 * Math.PI * r, frac = goal ? eaten / goal : 0, over = frac > 1;
+    const left = goal - eaten;
+    return `<svg viewBox="0 0 132 132" role="img" aria-label="נאכלו ${r0(eaten)} מתוך ${r0(goal)}">
+      <circle cx="66" cy="66" r="${r}" fill="none" stroke="var(--line)" stroke-width="12"/>
+      <circle cx="66" cy="66" r="${r}" fill="none" stroke="${over ? "var(--surplus)" : "url(#rg)"}" stroke-width="12" stroke-linecap="round"
+        stroke-dasharray="${Math.min(1, frac) * c} ${c}" transform="rotate(-90 66 66)"/>
+      <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8dc7"/><stop offset="1" stop-color="#8fd0ff"/></linearGradient></defs>
+      <text x="66" y="64" text-anchor="middle" class="big">${r0(Math.abs(left))}</text>
+      <text x="66" y="84" text-anchor="middle" class="lab">${over ? "מעל היעד" : "נשארו"}</text></svg>`;
+  }
+  function renderHero(day) {
+    const t = dayTotals(day), goal = targets.kcal || 1700, mt = macroTargets();
+    const extra = extraKcal(day);
+    const tr = treats(day);
+    const sweetK = tr.filter((x) => x.type === "sweet").reduce((s2, x) => s2 + (x.kcal || 0), 0);
+    const saltyK = tr.filter((x) => x.type === "salty").reduce((s2, x) => s2 + (x.kcal || 0), 0);
+    const bar = (v, g, col) => `<div class="bar"><i style="width:${g ? Math.min(100, (100 * v) / g) : 0}%;background:${col}"></i></div>`;
+    const mac = (l, v, g, col) => `<div class="mac"><div class="l"><span>${l}</span></div><div class="v">${r0(v)} <span class="muted small">/ ${r0(g)} ג׳</span></div>${bar(v, g, col)}</div>`;
+    $("hero").innerHTML =
+      `<div class="hero-top"><div class="ring">${ringSvg(t.kcal, goal)}</div>
+        <div class="eq"><div><span>יעד</span><b>${r0(goal)}</b></div><div><span>אוכל</span><b>− ${r0(t.kcal)}</b></div>
+        ${extra ? `<div><span>אימון ידני</span><b>+ ${r0(extra)}</b></div>` : ""}
+        <div class="tot"><span>${goal - t.kcal + extra >= 0 ? "נשארו" : "מעל היעד"}</span><b>${r0(Math.abs(goal - t.kcal + extra))}</b></div></div></div>
+      <div class="macros3">${mac("חלבון", t.protein, mt.protein, "var(--accent)")}${mac("פחמימה", t.carbs, mt.carbs, "var(--accent-2)")}${mac("שומן", t.fat, mt.fat, "var(--c3)")}</div>
+      <div class="pills"><span>סוכר ${r0(t.sugar)} ג׳</span><span>סיבים ${r0(t.fiber)} ג׳</span>${sweetK ? `<span>מתוק ${r0(sweetK)} קל׳</span>` : ""}${saltyK ? `<span>מלוח ${r0(saltyK)} קל׳</span>` : ""}</div>`;
+  }
+  let pickedSlot = null;
+  function renderSlotChips() {
+    const cur0 = pickedSlot || slotFromTime($("mealTime").value) || "snack";
+    $("slotChips").innerHTML = "";
+    for (const [k, l] of SLOTS) {
+      const b = document.createElement("button");
+      b.className = "chip" + (cur0 === k ? " on" : ""); b.textContent = l.split(" ")[0];
+      b.setAttribute("role", "radio"); b.setAttribute("aria-checked", cur0 === k ? "true" : "false");
+      b.onclick = () => { pickedSlot = k; renderSlotChips(); };
+      $("slotChips").appendChild(b);
+    }
+  }
+  function renderRecent() {
+    const seen = new Set(), list = [];
+    const keys = Object.keys(days).sort().reverse().slice(0, 45);
+    for (const k of keys) for (const m of (days[k].meals || []).slice().reverse()) {
+      if (m.imported || !m.text) continue;
+      const t = m.text.trim(); if (seen.has(t)) continue; seen.add(t); list.push(t);
+      if (list.length >= 6) break;
+    }
+    $("recentWrap").hidden = !list.length;
+    $("recent").innerHTML = "";
+    for (const t of list) {
+      const b = document.createElement("button"); b.className = "chip"; b.textContent = t.length > 26 ? t.slice(0, 25) + "…" : t; b.title = t;
+      b.onclick = () => { $("mealText").value = t; $("mealText").focus(); };
+      $("recent").appendChild(b);
+    }
+  }
   function renderToday() {
     $("dateLabel").textContent = dateLabel(cur);
     renderCycle();
     $("nextDay").disabled = cur >= todayKey();
     const day = getDay(cur);
+    renderHero(day);
+    renderSlotChips();
+    renderRecent();
+    renderPlan();
 
     // water
     const w = day.water || 0, goal = targets.water || 8;
-    $("waterMl").textContent = `${w} מתוך ${goal} כוסות · ${(w * 0.25).toLocaleString("he-IL")} ליטר`;
+    $("waterMl").textContent = `${w}/${goal} · ${(w * 0.25).toLocaleString("he-IL")} ל׳`;
     $("cups").innerHTML = "";
     for (let i = 0; i < Math.max(goal, w); i++) {
       const c = document.createElement("button");
@@ -809,27 +915,21 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
       $("cups").appendChild(c);
     }
 
-    // meals
+    // diary grouped by meal
     const meals = (day.meals || []).slice().sort((a, b) => (dayH(a.time) ?? 99) - (dayH(b.time) ?? 99));
-    $("mealCount").textContent = meals.length ? meals.length + " רשומות" : "";
-    $("mealList").innerHTML = meals.length ? "" : '<div class="empty">עוד לא נרשם אוכל ליום הזה. אפשר לכתוב בחופשיות, ארוחה אחת או את כל היום, והערכים יחושבו.</div>';
-    for (const m of meals) $("mealList").appendChild(mealRow(m, day));
-
     const t = dayTotals(day);
-    const pr = targets.protein ? Math.min(100, (t.protein / targets.protein) * 100) : 0;
-    const kc = targets.kcal ? Math.min(100, (t.kcal / targets.kcal) * 100) : 0;
-    const tr = treats(day);
-    const sweetK = tr.filter((x) => x.type === "sweet").reduce((s, x) => s + (x.kcal || 0), 0);
-    const saltyK = tr.filter((x) => x.type === "salty").reduce((s, x) => s + (x.kcal || 0), 0);
-    $("totals").innerHTML =
-      `<div><b>${r0(t.kcal)}</b><span>קלוריות מתוך ${r0(targets.kcal)}</span><div class="bar"><i style="width:${kc}%"></i></div></div>` +
-      `<div><b>${r1(t.protein)}</b><span>חלבון (ג׳) מתוך ${r0(targets.protein)}</span><div class="bar"><i style="width:${pr}%"></i></div></div>` +
-      `<div><b>${r1(t.carbs)}</b><span>פחמימה (ג׳)</span></div>` +
-      `<div><b>${r1(t.fat)}</b><span>שומן (ג׳)</span></div>` +
-      `<div><b>${r1(t.sugar)}</b><span>סוכר (ג׳)</span></div>` +
-      `<div><b>${r1(t.fiber)}</b><span>סיבים (ג׳)</span></div>` +
-      `<div><b>${r0(sweetK)}</b><span>קלוריות ממתוק</span></div>` +
-      `<div><b>${r0(saltyK)}</b><span>קלוריות מחטיף מלוח</span></div>`;
+    $("mealCount").textContent = meals.length ? `${meals.length} ארוחות · ${r0(t.kcal)} קל׳` : "";
+    const list = $("mealList"); list.innerHTML = "";
+    if (!meals.length) list.innerHTML = '<div class="empty">עוד לא נרשם אוכל ליום הזה. כל ארוחה נרשמת בנפרד, עם השעה שלה.</div>';
+    for (const [k, l] of SLOTS.concat([["other", "בלי שעה"]])) {
+      const ms = meals.filter((m) => slotOf(m) === k);
+      if (!ms.length) continue;
+      const sec = document.createElement("div"); sec.className = "slot";
+      sec.innerHTML = `<div class="slot-h"><h3>${l}</h3><span class="muted small">${r0(ms.reduce((s2, m) => s2 + (m.kcal || 0), 0))} קל׳</span></div>`;
+      const inner = document.createElement("div"); inner.className = "list";
+      for (const m of ms) inner.appendChild(mealRow(m, day));
+      sec.appendChild(inner); list.appendChild(sec);
+    }
 
     // calorie balance
     const out = energyOut(day), isToday = cur === todayKey();
@@ -841,15 +941,15 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     }
     else if (!out) {
       bx.hidden = false;
-      bx.innerHTML = `<b>גירעון קלורי</b><span class="muted small">כדי לחשב: להריץ את קיצור הדרך עם ״אנרגיה במנוחה״, או למלא גובה, שנת לידה ונוסחה בהגדרות.</span><div><button class="link" data-go="setup">להגדרות</button></div>`;
+      bx.innerHTML = `<b>מאזן מול מה ששרפת</b><span class="muted small">כדי לחשב: לייבא נתוני Health, או למלא גובה, שנת לידה ונוסחה בהגדרות.</span><div><button class="link" data-go="setup">להגדרות</button></div>`;
     } else {
       const bal = t.kcal - out.total, def = bal <= 0;
       const src = out.src === "health" ? "לפי Health" : out.src === "formula" ? "מנוחה לפי נוסחה, פעילות לפי Health" : "לפי נוסחה, בהנחת יום יושבני";
       bx.hidden = false;
       bx.innerHTML =
-        `<span class="big num ${def ? "def" : "sur"}">${def ? "גירעון" : "עודף"} ${r0(Math.abs(bal))} קלוריות</span>` +
+        `<span class="small muted">מאזן מול מה ששרפת</span><span class="big num ${def ? "def" : "sur"}">${def ? "גירעון" : "עודף"} ${r0(Math.abs(bal))} קלוריות</span>` +
         `<span class="small num">אכלת ${r0(t.kcal)} · הוצאה ~${r0(out.total)} (מנוחה ${r0(out.rest)}${out.active != null ? " + פעילות " + r0(out.active) : ""}${out.extra ? " + אימונים ידניים " + r0(out.extra) : ""})</span>` +
-        `<span class="muted small">${src}${isToday ? ". היום עוד לא נגמר, והמספרים יתעדכנו בהרצה הבאה של הקיצור." : ""}</span>`;
+        `<span class="muted small">${src}${isToday ? ". היום עוד לא נגמר." : ""}</span>`;
     }
     bx.querySelectorAll("[data-go]").forEach((b) => (b.onclick = () => tab(b.dataset.go)));
 
@@ -868,17 +968,77 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
       cell(f.steps, "צעדים") + cell(f.distance, "ק״מ הליכה", r1) + cell(f.active, "קלוריות פעילות") + cell(f.basal, "קלוריות במנוחה") +
       cell(f.exercise || null, "דקות אימון") + cell(f.flights, "קומות") + cell(f.hrAvg, "דופק ממוצע") + cell(f.hrMax, "דופק מקסימלי") +
       cell(f.rhr, "דופק במנוחה") + cell(f.walkSpeed, "קמ״ש הליכה", r1) + cell(f.stepLen, "ס״מ אורך צעד", r0) + cell(f.asym, "% אסימטריה בהליכה", r1);
-    const wl = (f.workoutList || []).map((w, wi) =>
-      `<div class="fact"><span>${esc(WORKOUT[w.type] || w.type)}${w.start ? " · " + esc(w.start) : ""}${w.note ? `<div class="muted small">${esc(w.note)}</div>` : ""}</span><b class="small num">${w.min != null ? r0(w.min) + " דק׳" : ""}${w.km != null ? " · " + r1(w.km) + " ק״מ" : ""}${w.kcal != null ? " · " + r0(w.kcal) + " קל׳" : ""}${w.hrAvg != null ? " · דופק " + w.hrAvg + " (עד " + w.hrMax + ")" : ""}${w.manual ? ` <button class="link danger" data-wdel="${wi}">מחיקה</button>` : ""}</b></div>`).join("");
+    const wl = (f.workoutList || []).map((w2, wi) =>
+      `<div class="fact"><span>${esc(WORKOUT[w2.type] || w2.type)}${w2.start ? " · " + esc(w2.start) : ""}${w2.note ? `<div class="muted small">${esc(w2.note)}</div>` : ""}</span><b class="small num">${w2.min != null ? r0(w2.min) + " דק׳" : ""}${w2.km != null ? " · " + r1(w2.km) + " ק״מ" : ""}${w2.kcal != null ? " · " + r0(w2.kcal) + " קל׳" : ""}${w2.hrAvg != null ? " · דופק " + w2.hrAvg + " (עד " + w2.hrMax + ")" : ""}${w2.manual ? ` <button class="link danger" data-wdel="${wi}">מחיקה</button>` : ""}</b></div>`).join("");
     $("fit").innerHTML = cells || '<div class="empty" style="grid-column:1/-1">אין נתוני פעילות ליום הזה.</div>';
     $("workouts").innerHTML = wl ? `<div class="facts">${wl}</div>` : "";
     $("workouts").querySelectorAll("[data-wdel]").forEach((b) => armDelete(b, () => {
-      const d = getDay(cur), list = (d.fit && d.fit.workoutList) || [];
-      list.splice(Number(b.dataset.wdel), 1);
-      d.fit.workouts = list.length; d.fit.exercise = Math.round(list.reduce((s, w) => s + (w.min || 0), 0));
+      const d = getDay(cur), l2 = (d.fit && d.fit.workoutList) || [];
+      l2.splice(Number(b.dataset.wdel), 1);
+      d.fit.workouts = l2.length; d.fit.exercise = Math.round(l2.reduce((s2, x) => s2 + (x.min || 0), 0));
       saveDay(d);
     }));
     $("fitWhen").textContent = f.importedAt ? (f.source === "export" ? "מייצוא Health" : "עודכן " + new Date(f.importedAt).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" })) : "";
+  }
+
+  // ---------- suggested menu ----------
+  let plans = {};
+  let planBusy = false;
+  function frequentFoods() {
+    const c = {};
+    for (const d of Object.values(days)) for (const m of d.meals || []) for (const i of m.items || []) {
+      const k = String(i.name || "").replace(/\(.*?\)/g, "").trim(); if (!k) continue; c[k] = (c[k] || 0) + 1;
+    }
+    return Object.entries(c).sort((a, b) => b[1] - a[1]).slice(0, 30).map(([k]) => k);
+  }
+  function renderPlan() {
+    const box = $("planBox"), p = plans[cur];
+    $("planBtn").disabled = planBusy || !sample;
+    $("planBtn").textContent = p ? "הצעה חדשה" : "הצעה להמשך היום";
+    if (planBusy) { box.innerHTML = '<div class="empty">מרכיבה תפריט לפי מה שכבר אכלת, היעד והשלב במעגל… (עד דקה)</div>'; return; }
+    if (!p) { box.innerHTML = `<div class="empty">${sample ? "הצעה לארוחות שנשארו היום, לפי הקלוריות והחלבון שנשארו, האוכל שאת אוכלת בדרך כלל והשלב במעגל." : "ההצעות זמינות כשהדף פתוח מתוך claude.ai."}</div>`; return; }
+    box.innerHTML = `<div class="plan">${p.meals.map((m, i) => `<div class="pmeal"><div class="ph"><h3>${esc(m.title)}</h3><span class="muted small num">${esc(m.time || "")} · ${r0(m.kcal)} קל׳ · ${r0(m.protein)} ג׳ חלבון</span></div>
+      <ul>${(m.items || []).map((it) => `<li>${esc(it.name)}${it.amount ? ` <span class="muted">(${esc(it.amount)})</span>` : ""}</li>`).join("")}</ul>
+      ${m.why ? `<div class="muted small">${esc(m.why)}</div>` : ""}<div><button class="btn" data-eat="${i}">אכלתי את זה</button></div></div>`).join("")}
+      ${p.tip ? `<div class="take">${esc(p.tip)}</div>` : ""}</div>`;
+    box.querySelectorAll("[data-eat]").forEach((b) => (b.onclick = () => eatSuggestion(p.meals[Number(b.dataset.eat)])));
+  }
+  async function eatSuggestion(pm) {
+    const d = getDay(cur);
+    const items = (pm.items || []).map((i) => { const o = { name: String(i.name || ""), amount: String(i.amount || ""), time: null, taste: ["sweet", "salty", "savory", "neutral"].includes(i.taste) ? i.taste : "neutral", treat: i.treat === true }; for (const k of NUTR) o[k] = num(i[k]); return o; });
+    const m = { id: uid(), time: cur === todayKey() ? nowHM() : (pm.time || ""), slot: SLOTS.some(([k]) => k === pm.slot) ? pm.slot : null, text: `${pm.title}: ${items.map((i) => i.name + (i.amount ? ` (${i.amount})` : "")).join(", ")}`, items, pending: false };
+    for (const k of NUTR) m[k] = Math.round(items.reduce((s2, i) => s2 + (i[k] || 0), 0) * 10) / 10;
+    d.meals.push(m);
+    await saveDay(d);
+    $("mealMsg").textContent = "נוסף ליומן. אפשר לערוך אם אכלת קצת אחרת.";
+  }
+  async function makePlan() {
+    if (!sample || planBusy) return;
+    const day = getDay(cur), t = dayTotals(day), mt = macroTargets(), c = cycleOf(cur);
+    const eaten = (day.meals || []).map((m) => `${m.time || "?"} [${slotOf(m)}] ${m.text} — ${m.kcal == null ? "?" : r0(m.kcal)} kcal, ${m.protein == null ? "?" : r0(m.protein)} g protein`).join("\n") || "(nothing yet)";
+    const prompt = [
+      "You plan the rest of today's meals for a woman in Israel who is losing weight slowly. Write every text field in Hebrew.",
+      `Daily targets: ${targets.kcal} kcal, ${targets.protein} g protein (about ${mt.carbs} g carbs, ${mt.fat} g fat).`,
+      `So far today: ${r0(t.kcal)} kcal, ${r0(t.protein)} g protein. Remaining: ${r0(Math.max(0, targets.kcal - t.kcal))} kcal, ${r0(Math.max(0, targets.protein - t.protein))} g protein.`,
+      `Current time: ${cur === todayKey() ? nowHM() : "planning a full day"}. Menstrual cycle: ${c ? `day ${c.cd}, phase ${c.key}` : "unknown"}.`,
+      "Already eaten:", eaten,
+      "Foods she eats often (prefer these, simple Israeli home food, cottage, eggs, chicken, tuna, protein yogurt, spelt pita, salads, syrniki):", frequentFoods().join(", "),
+      "Rules: only plan meals still ahead today (skip slots already eaten unless it's a snack). Hit the remaining protein; stay within the remaining calories (a small margin is ok).",
+      "She craves sweets, so include one small planned sweet (~100–150 kcal) if calories allow. In the luteal/pre-period phase, allow a bit more carbs and magnesium-rich foods.",
+      'Reply with only JSON: {"meals":[{"slot":"lunch|dinner|snack|breakfast","time":"HH:MM","title":"...","items":[{"name":"...","amount":"...","kcal":0,"protein":0,"carbs":0,"fat":0,"sugar":0,"fiber":0,"sodium":0,"taste":"savory|sweet|salty|neutral","treat":false}],"kcal":0,"protein":0,"why":"short reason"}],"tip":"one short practical tip for today"}',
+    ].join("\n");
+    planBusy = true; renderPlan();
+    try {
+      const r = await sample.json(prompt, { modelTier: "default", cache: false });
+      const meals = (Array.isArray(r && r.meals) ? r.meals : []).slice(0, 5).map((m) => ({ slot: String(m.slot || ""), time: String(m.time || ""), title: String(m.title || "").slice(0, 80), why: String(m.why || "").slice(0, 200),
+        kcal: num(m.kcal), protein: num(m.protein), items: (Array.isArray(m.items) ? m.items : []).slice(0, 10) }));
+      if (!meals.length) throw { code: "invalid_json" };
+      plans[cur] = { date: cur, meals, tip: String((r && r.tip) || "").slice(0, 240), createdAt: new Date().toISOString() };
+      if (db) db.doc("plans/" + cur).set(plans[cur]).catch(() => {});
+    } catch (e) {
+      $("planBox").innerHTML = "";
+      $("mealMsg").textContent = ERR[e && e.code] || "ההצעה נכשלה. אפשר לנסות שוב.";
+    } finally { planBusy = false; renderPlan(); }
   }
   function itemTag(i) {
     if (i.treat && i.taste === "sweet") return '<span class="tag sweet">מתוק</span>';
@@ -915,13 +1075,22 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     el.querySelector('[data-a="edit"]').onclick = () => {
       if (!box.hidden) { box.hidden = true; return; }
       box.innerHTML = `<div style="display:grid;gap:6px;padding-top:6px"><textarea class="field" data-k="text">${esc(m.text)}</textarea>` +
-        `<div class="row"><input class="field" type="time" data-k="time" value="${esc(m.time || "")}" style="width:auto"><button class="btn primary" data-a="save">שמירה וחישוב מחדש</button></div></div>`;
+        `<div class="row"><input class="field" type="time" data-k="time" value="${esc(m.time || "")}" style="width:auto"><select class="field" data-k="slot" style="width:auto">${SLOTS.map(([k, l]) => `<option value="${k}"${slotOf(m) === k ? " selected" : ""}>${l}</option>`).join("")}</select></div>
+        <div class="row"><button class="btn" data-a="savequick">שמירת שעה וסוג</button><button class="btn primary" data-a="save">שמירה וחישוב מחדש</button></div></div>`;
       box.hidden = false;
+      box.querySelector('[data-a="savequick"]').onclick = () => {
+        const d = getDay(day.date), mm = d.meals.find((x) => x.id === m.id);
+        if (!mm) return;
+        mm.time = box.querySelector('[data-k="time"]').value || mm.time;
+        mm.slot = box.querySelector('[data-k="slot"]').value;
+        saveDay(d);
+      };
       box.querySelector('[data-a="save"]').onclick = async () => {
         const d = getDay(day.date), mm = d.meals.find((x) => x.id === m.id);
         if (!mm) return;
         mm.text = box.querySelector('[data-k="text"]').value.trim().slice(0, 1500) || mm.text;
         mm.time = box.querySelector('[data-k="time"]').value || mm.time;
+        mm.slot = box.querySelector('[data-k="slot"]').value;
         mm.pending = true; delete mm.estError;
         for (const k of NUTR) mm[k] = null;
         mm.items = [];
@@ -973,6 +1142,8 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
       });
     }
     $("heat").innerHTML = html;
+    const pk = (type) => { const c = counts[type], m = Math.max(...c); return m ? BIN_LABEL[c.indexOf(m)] : null; };
+    setTake("tk-heat", pk("sweet") || pk("salty") ? `מתוק מגיע בעיקר ב־<b>${pk("sweet") || "—"}</b>, מלוח ב־<b>${pk("salty") || "—"}</b>. ככל שהמשבצת כהה יותר, זה קרה יותר פעמים.` : "");
 
     const sw = all.filter((x) => x.type === "sweet"), sa = all.filter((x) => x.type === "salty");
     const untimed = all.filter((x) => binOf(x.time) < 0).length;
@@ -1001,6 +1172,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     [tdee, () => macroSplit(ds), () => topFoods(ds), () => micro(ds), () => weekendTable(ds), consistency, () => eatingWindow(ds),
       stepsCal, walkTrend, () => stepsVsFood(ds), forecast, cycleWeight, cycleCrave].forEach(safe);
     barChart($("kcalChart"), ds.map((d) => { const t = dayTotals(d); return { x: d.date, y: t.n && !d.partialFood ? t.kcal : null }; }), targets.kcal);
+    takeaways(ds);
     barChart($("stepsChart"), ds.map((d) => ({ x: d.date, y: d.fit && d.fit.steps != null ? d.fit.steps : null })), 10000, { unit: "צעדים", label: "צעדים ביום", empty: "אין עדיין נתוני צעדים." });
 
     // calorie balance over the range (today excluded: it isn't finished)
@@ -1014,7 +1186,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
       const expKg = sum / 7700;
       const wIn = ds.filter((d) => d.weight != null);
       const actual = wIn.length >= 2 ? wIn[wIn.length - 1].weight - wIn[0].weight : null;
-      const sign = (v) => "⁦" + (v > 0 ? "+" : "") + r1(v) + "⁩";
+      const sign = (v) => signed(v, 1);
       const bf = [
         ["ימים שנמדדו", `${bv.length} · בגירעון ${bv.filter((x) => x <= 0).length} מהם`],
         ["ממוצע ליום", `${avg(bv) <= 0 ? "גירעון" : "עודף"} ${r0(Math.abs(avg(bv)))} קלוריות`],
@@ -1066,7 +1238,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
   }
 
   // charts: one scale per chart, thin marks, hover tooltip
-  const W = 600, H = 200, P = { l: 40, r: 12, t: 12, b: 26 };
+  const W = 400, H = 220, P = { l: 44, r: 10, t: 14, b: 28 };
   function ticks(lo, hi, n) {
     const step0 = (hi - lo) / n, mag = Math.pow(10, Math.floor(Math.log10(step0 || 1)));
     const step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((s) => s >= step0) || mag * 10;
@@ -1074,7 +1246,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     return out;
   }
   function xLabels(pts, X) {
-    const every = Math.ceil(pts.length / 6);
+    const every = Math.ceil(pts.length / 5);
     return pts.map((p, i) => (i % every === 0 || i === pts.length - 1) ? `<text x="${X(i)}" y="${H - 8}" text-anchor="middle">${+p.x.slice(8)}.${+p.x.slice(5, 7)}</text>` : "").join("");
   }
   function barChart(el, pts, target, o) {
@@ -1138,7 +1310,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
       (periods.length ? '<div class="legend"><span><i style="background:var(--sweet);opacity:.35"></i>ימי מחזור</span></div>' : "");
 
     const first = pts[0], min = pts.reduce((a, b) => (b.y < a.y ? b : a));
-    const iso = (v) => "\u2066" + (v > 0 ? "+" : "") + r1(v) + "\u2069";
+    const iso = (v) => signed(v, 1);
     const facts = [
       ["עכשיו", `${r1(last.y)} ק״ג · ${dateLabel(last.x)}`],
       ["שקילה ראשונה", `${r1(first.y)} ק״ג · ${+first.x.slice(8)}.${+first.x.slice(5, 7)}`],
@@ -1159,6 +1331,8 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
       else eta = "בקצב הנוכחי המשקל לא יורד";
       facts.push(["עד היעד", `${r1(Math.max(0, left))} ק״ג · ${eta}`]);
     } else facts.push(["משקל יעד", "אפשר להגדיר בהגדרות"]);
+    const trNow = tr[tr.length - 1], tr28 = (() => { const cut = last.t - 28 * DAY; let v = null; pts.forEach((p, i) => { if (p.t <= cut) v = tr[i]; }); return v; })();
+    setTake("tk-weight", tr28 != null ? `משקל המגמה <b>${trNow - tr28 < -0.05 ? "ירד" : trNow - tr28 > 0.05 ? "עלה" : "יציב"}</b>${Math.abs(trNow - tr28) >= 0.05 ? ` ב־<b>${r1(Math.abs(trNow - tr28))} ק״ג</b>` : ""} ב־4 השבועות האחרונים. השקילה האחרונה: <b>${r1(last.y)}</b>.` : `השקילה האחרונה: <b>${r1(last.y)}</b> ק״ג. כדי לראות מגמה צריך עוד שקילות.`);
     $("weightFacts").innerHTML = facts.map(([a, b]) => `<div class="fact"><span>${a}</span><b class="num">${esc(b)}</b></div>`).join("") +
       (pts.length < 8 ? '<div class="muted small">יש מעט שקילות, אז המגמה עדיין גסה. 2–3 שקילות בוקר בשבוע יספיקו כדי שתהיה מדויקת.</div>' : "");
   }
@@ -1182,6 +1356,23 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     $("weeklyTbl").innerHTML = "<table><thead><tr><th>שבוע מ־</th><th>ימי אוכל</th><th>קל׳ ממוצע</th><th>חלבון</th><th>צעדים</th><th>מתוק+מלוח</th><th>מאזן</th><th>משקל</th></tr></thead><tbody>" +
       rows.map((r) => `<tr><td>${r.label}</td><td>${r.n}</td><td>${r0(r.kcal)}</td><td>${r0(r.prot)}</td><td>${r0(r.steps)}</td><td>${r0(r.treat)}</td><td>${balTxt(r.bal)}</td><td>${r1(r.w)}</td></tr>`).join("") +
       "</tbody></table><div class=\"muted small\">ממוצעים רק על ימים שבהם נרשם כל האוכל. מאזן שלילי = גירעון.</div>";
+  }
+
+  // one plain-language line above each chart
+  function setTake(id, html) { const el = $(id); if (el) { el.innerHTML = html || ""; el.hidden = !html; } }
+  function takeaways(ds) {
+    const full = ds.filter(fullFood);
+    const ks = full.map((d) => dayTotals(d).kcal);
+    setTake("tk-kcal", ks.length ? `ב־${ks.length} ימים מלאים: ממוצע <b>${r0(avg(ks))}</b> קלוריות. <b>${ks.filter((k) => k <= targets.kcal + 100).length}</b> מהם ביעד או מתחתיו.` : "");
+    const bals = full.map(balanceOf).filter(Boolean).map((b) => b.bal);
+    setTake("tk-bal", bals.length ? `ביום ממוצע: <b>${avg(bals) <= 0 ? "גירעון" : "עודף"} ${r0(Math.abs(avg(bals)))}</b> קלוריות לפי Health. עמודה כחולה מתחת לקו = גירעון, אדומה מעל = עודף.` : "");
+    const st = ds.map((d) => d.fit && d.fit.steps).filter((v) => v != null);
+    const half = Math.floor(st.length / 2);
+    if (st.length >= 14) {
+      const a = avg(st.slice(0, half)), b = avg(st.slice(half)), ch = Math.round((100 * (b - a)) / a);
+      setTake("tk-steps", `ממוצע <b>${r0(avg(st))}</b> צעדים ביום. בחצי השני של התקופה <b>${ch >= 0 ? "עלית" : "ירדת"} ב־${Math.abs(ch)}%</b> לעומת החצי הראשון.`);
+    } else setTake("tk-steps", st.length ? `ממוצע <b>${r0(avg(st))}</b> צעדים ביום.` : "");
+    setTake("tk-scal", st.length ? `כל ריבוע הוא יום. ככל שהכחול כהה יותר, הלכת יותר. <b>${st.filter((v) => v >= 10000).length}</b> ימים עם 10,000+ צעדים בתקופה.` : "");
   }
 
   // ---------- more insights ----------
@@ -1224,7 +1415,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
       ["הוצאה משוערת מהנתונים", `${r0(est)} קלוריות ביום`],
       ["האייפון מעריך", health ? `${r0(health)} קלוריות ביום` : "—"],
       ["צריכה ממוצעת", `${r0(intake)} (${food.length} ימים)`],
-      ["שינוי במשקל המגמה", `⁦${dkg > 0 ? "+" : ""}${r1(dkg)}⁩ ק״ג ב־${span} ימים`],
+      ["שינוי במשקל המגמה", `${signed(dkg, 1)} ק״ג ב־${span} ימים`],
       ["לירידה של 0.35 ק״ג בשבוע", `בערך ${r0(est - 385)} קלוריות ביום`],
     ]) + '<div class="muted small">ההערכה מניחה שכל האוכל נרשם. ימים חסרים או לא מדויקים מטים אותה.</div>';
   }
@@ -1236,6 +1427,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     const kp = P * 4, kc = C * 4, kf = F * 9, tot = kp + kc + kf;
     const pct = (k) => Math.round((100 * k) / tot);
     const tp = targets.kcal ? Math.round((100 * targets.protein * 4) / targets.kcal) : null;
+    setTake("tk-macro", `חלבון הוא <b>${pct(kp)}%</b> מהקלוריות${tp ? `, והיעד שלך הוא בערך <b>${tp}%</b>` : ""}. ${pct(kp) < (tp || 25) - 3 ? "כדאי להוסיף חלבון." : "זה בכיוון הנכון."}`);
     $("macroSplit").innerHTML =
       `<div class="stack"><i style="flex:${kp};background:var(--c1)">${pct(kp)}%</i><i style="flex:${kc};background:var(--c2)">${pct(kc)}%</i><i style="flex:${kf};background:var(--c3)">${pct(kf)}%</i></div>` +
       `<div class="legend" style="margin-top:6px"><span><i style="background:var(--c1)"></i>חלבון ${r0(P)} ג׳</span><span><i style="background:var(--c2)"></i>פחמימה ${r0(C)} ג׳</span><span><i style="background:var(--c3)"></i>שומן ${r0(F)} ג׳</span></div>` +
@@ -1254,6 +1446,8 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     const list = Object.values(agg).sort((a, b) => b.kcal - a.kcal).slice(0, 10);
     if (!list.length) { $("topFoods").innerHTML = '<div class="empty">יופיע כשיירשם אוכל.</div>'; return; }
     const max = list[0].kcal;
+    const trK = list.filter((f) => f.treat).reduce((s2, f) => s2 + f.kcal, 0), allK = list.reduce((s2, f) => s2 + f.kcal, 0);
+    setTake("tk-top", `הכי הרבה קלוריות הגיעו מ<b>${esc(list[0].name)}</b>. ${trK ? `מתוקים ומלוחים הם <b>${Math.round((100 * trK) / allK)}%</b> מעשרת המובילים.` : ""}`);
     $("topFoods").innerHTML = list.map((f) =>
       `<div class="hbar" data-tip="${esc(f.name)}: ${r0(f.kcal)} קלוריות ב־${f.n} פעמים"><span class="nm">${esc(f.name)}</span><span class="track"><i style="width:${(100 * f.kcal) / max}%;background:${f.treat ? `var(--${f.taste === "salty" ? "salty" : "sweet"})` : "var(--accent)"}"></i></span><b class="num small">${r0(f.kcal)}</b></div>`).join("") +
       '<div class="muted small">סה״כ קלוריות מכל פריט בתקופה. כתום/כחול = מתוק/מלוח.</div>';
@@ -1316,6 +1510,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     let streak = 0; for (let k = todayKey(); ; k = shift(k, -1)) { const d = days[k]; if (d && fullFood(d)) streak++; else if (k === todayKey()) continue; else break; if (streak > 400) break; }
     const vals = []; for (let i = 0; i < 91; i++) { const k = shift(todayKey(), -i); vals.push(judge(k, days[k]).v); }
     const measured = vals.filter((v) => v != null);
+    setTake("tk-cons", `כל ריבוע הוא יום, וכל עמודה היא שבוע (הכי חדש משמאל). ירוק = עמדת ב${M.find((m) => m[0] === calMetric)[1]}.`);
     $("consistFacts").innerHTML = factsHtml([
       ["רצף ימי רישום מלא", `${streak} ימים`],
       ["ב־13 השבועות האחרונים", measured.length ? `${measured.filter((v) => v === 1).length} מתוך ${measured.length} ימים עם נתון` : "—"],
@@ -1339,6 +1534,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     rows.forEach((r, i) => { if (r.a == null) return; const y1 = Y(r.a), y2 = Math.max(Y(r.b), y1 + 4); s += `<rect x="${X(i) - w / 2}" y="${y1}" width="${w}" height="${y2 - y1}" rx="${w / 2}" fill="var(--accent)"/><rect x="${X(i) - bw / 2}" y="${P.t}" width="${bw}" height="${H - P.t - P.b}" fill="transparent" data-tip="${dateLabel(r.x)}: ${hhmm(r.a)}–${hhmm(r.b)}"/>`; });
     $("windowChart").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="חלון אכילה">${s}</svg>`;
     const tk = got.reduce((s2, r) => s2 + r.timedK, 0), lk = got.reduce((s2, r) => s2 + r.late, 0);
+    setTake("tk-window", `בממוצע אוכלת בין <b>${hhmm(avg(got.map((r) => r.a)))}</b> ל־<b>${hhmm(avg(got.map((r) => r.b)))}</b>. הרקע הוורוד הוא אחרי 20:00.`);
     $("windowFacts").innerHTML = factsHtml([
       ["ארוחה ראשונה (ממוצע)", hhmm(avg(got.map((r) => r.a)))],
       ["ארוחה אחרונה (ממוצע)", hhmm(avg(got.map((r) => r.b)))],
@@ -1382,6 +1578,8 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
       wk.push({ x: keyOf(s0), sp: avg(f.map((x) => x.walkSpeed)), sl: avg(f.map((x) => x.stepLen)) });
     }
     lineSimple($("speedChart"), wk.map((w) => ({ x: w.x, y: w.sp })), "קמ״ש", 1);
+    const sp = wk.map((w) => w.sp).filter((v) => v != null);
+    setTake("tk-speed", sp.length >= 8 ? `ב־4 השבועות האחרונים: <b>${r1(avg(sp.slice(-4)))}</b> קמ״ש, לעומת <b>${r1(avg(sp.slice(0, 4)))}</b> בתחילת התקופה.` : "");
     lineSimple($("stepLenChart"), wk.map((w) => ({ x: w.x, y: w.sl })), "ס״מ", 0);
   }
   function stepsVsFood(ds) {
@@ -1433,6 +1631,8 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
       s += `<path d="${sr.pts.map((p, i) => (i ? "L" : "M") + X(p.cd).toFixed(1) + " " + Y(p.y).toFixed(1)).join("")}" fill="none" stroke="${sr.color}" stroke-width="2"/>`;
       sr.pts.forEach((p) => { s += `<circle cx="${X(p.cd)}" cy="${Y(p.y)}" r="4" fill="${sr.color}" stroke="var(--surface)" stroke-width="2"/><circle cx="${X(p.cd)}" cy="${Y(p.y)}" r="11" fill="transparent" data-tip="${dateLabel(p.x)} · יום ${p.cd} במעגל: ${r1(p.y)} ק״ג"/>`; });
     }
+    const inPer = series.flatMap((s2) => s2.pts.filter((p) => p.cd <= cs.per || p.cd > cs.len - 5)).map((p) => p.y), outPer = series.flatMap((s2) => s2.pts.filter((p) => p.cd > cs.per && p.cd <= cs.len - 5)).map((p) => p.y);
+    setTake("tk-cw", inPer.length && outPer.length ? `סביב המחזור המשקל הממוצע <b>${r1(avg(inPer))}</b> ק״ג, ובשאר המעגל <b>${r1(avg(outPer))}</b>. הפרש כזה הוא לרוב מים.` : "צריך עוד שקילות בתוך מעגלים כדי להשוות.");
     el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="משקל לפי יום במעגל">${s}</svg>` +
       `<div class="legend">${series.map((sr) => `<span><i style="background:${sr.color}"></i>מעגל מ־${+sr.p.start.slice(8)}.${+sr.p.start.slice(5, 7)}</span>`).join("")}</div><div class="muted small">ציר אופקי: יום במעגל (1 = היום הראשון של המחזור). רקע: מחזור ובהיר יותר טרום מחזור.</div>`;
   }
@@ -1585,15 +1785,18 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
   $("prevDay").onclick = () => { cur = shift(cur, -1); renderToday(); };
   $("nextDay").onclick = () => { if (cur < todayKey()) { cur = shift(cur, 1); renderToday(); } };
   $("mealTime").value = nowHM();
+  $("mealTime").addEventListener("input", () => { if (!pickedSlot) renderSlotChips(); });
+  $("nowBtn").onclick = () => { $("mealTime").value = nowHM(); pickedSlot = null; renderSlotChips(); };
+  $("planBtn").onclick = makePlan;
 
   $("addMeal").onclick = async () => {
     const text = $("mealText").value.trim();
     if (!text) { $("mealMsg").textContent = "צריך לכתוב מה אכלת."; return; }
     $("mealMsg").textContent = "";
     const d = getDay(cur);
-    const m = { id: uid(), time: $("mealTime").value || nowHM(), text: text.slice(0, 1500), items: [], kcal: null, protein: null, carbs: null, fat: null, sugar: null, fiber: null, sodium: null, pending: true };
+    const m = { id: uid(), time: $("mealTime").value || nowHM(), slot: pickedSlot || slotFromTime($("mealTime").value || nowHM()), text: text.slice(0, 1500), items: [], kcal: null, protein: null, carbs: null, fat: null, sugar: null, fiber: null, sodium: null, pending: true };
     d.meals.push(m);
-    $("mealText").value = ""; $("mealTime").value = nowHM();
+    $("mealText").value = ""; $("mealTime").value = nowHM(); pickedSlot = null;
     await saveDay(d);
     estimate(cur, m.id);
   };
@@ -1689,6 +1892,10 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
       if (!$("view-month").hidden) renderMonth();
       if (first && !snap.metadata.fromCache) { first = false; resumePending(); }
     }, () => setStatus("החיבור לאחסון נותק. צריך לרענן את העמוד.", true));
+    db.collection("plans").orderBy("date", "desc").limit(14).onSnapshot((snap) => {
+      snap.docs.forEach((d) => { const v = d.data(); if (v && v.date) plans[v.date] = v; });
+      if (!planBusy) renderPlan();
+    }, () => {});
     db.collection("periods").onSnapshot((snap) => {
       periods = snap.docs.map((d) => d.data()).filter((p) => p && p.start).map((p) => ({ start: p.start, end: p.end || null, est: !!p.est })).sort((a, b) => a.start.localeCompare(b.start));
       renderCycle();
