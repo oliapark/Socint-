@@ -419,7 +419,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
   // intake minus expenditure: negative = deficit
   function balanceOf(day) {
     const t = dayTotals(day), out = energyOut(day);
-    if (!t.n || !out) return null;
+    if (!t.n || !out || day.partialFood) return null;
     return { bal: t.kcal - out.total, intake: t.kcal, out };
   }
 
@@ -626,6 +626,10 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     const out = energyOut(day), isToday = cur === todayKey();
     const bx = $("balance");
     if (!t.n) bx.hidden = true;
+    else if (day.partialFood) {
+      bx.hidden = false;
+      bx.innerHTML = `<b>יום חלקי</b><span class="muted small">רק חלק מהאוכל של היום הזה נרשם, אז הוא לא נכנס לחישובי גירעון ולממוצעים.</span>`;
+    }
     else if (!out) {
       bx.hidden = false;
       bx.innerHTML = `<b>גירעון קלורי</b><span class="muted small">כדי לחשב: להריץ את קיצור הדרך עם ״אנרגיה במנוחה״, או למלא גובה, שנת לידה ונוסחה בהגדרות.</span><div><button class="link" data-go="setup">להגדרות</button></div>`;
@@ -656,7 +660,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
       cell(f.exercise || null, "דקות אימון") + cell(f.flights, "קומות") + cell(f.hrAvg, "דופק ממוצע") + cell(f.hrMax, "דופק מקסימלי") +
       cell(f.rhr, "דופק במנוחה") + cell(f.walkSpeed, "קמ״ש הליכה", r1) + cell(f.stepLen, "ס״מ אורך צעד", r0) + cell(f.asym, "% אסימטריה בהליכה", r1);
     const wl = (f.workoutList || []).map((w) =>
-      `<div class="fact"><span>${esc(WORKOUT[w.type] || w.type)} · ${esc(w.start || "")}</span><b class="small num">${r0(w.min)} דק׳${w.km != null ? " · " + r1(w.km) + " ק״מ" : ""}${w.kcal != null ? " · " + r0(w.kcal) + " קל׳" : ""}${w.hrAvg != null ? " · דופק " + w.hrAvg + " (עד " + w.hrMax + ")" : ""}</b></div>`).join("");
+      `<div class="fact"><span>${esc(WORKOUT[w.type] || w.type)}${w.start ? " · " + esc(w.start) : ""}${w.note ? `<div class="muted small">${esc(w.note)}</div>` : ""}</span><b class="small num">${w.min != null ? r0(w.min) + " דק׳" : ""}${w.km != null ? " · " + r1(w.km) + " ק״מ" : ""}${w.kcal != null ? " · " + r0(w.kcal) + " קל׳" : ""}${w.hrAvg != null ? " · דופק " + w.hrAvg + " (עד " + w.hrMax + ")" : ""}</b></div>`).join("");
     $("fit").innerHTML = cells || '<div class="empty" style="grid-column:1/-1">אין נתוני פעילות ליום הזה.</div>';
     $("workouts").innerHTML = wl ? `<div class="facts">${wl}</div>` : "";
     $("fitWhen").textContent = f.importedAt ? (f.source === "export" ? "מייצוא Health" : "עודכן " + new Date(f.importedAt).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" })) : "";
@@ -737,7 +741,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
       $("rangeChips").appendChild(b);
     }
     const ds = rangeDays();
-    const loggedDays = ds.filter((d) => dayTotals(d).n);
+    const loggedDays = ds.filter((d) => dayTotals(d).n && !d.partialFood);
     const all = ds.flatMap((d) => treats(d).map((x) => Object.assign({ gap: gapBefore(d, x.time) }, x)));
 
     // time-of-day grid
@@ -776,7 +780,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
       : '<div class="empty">עוד לא זוהו מתוקים או חטיפים מלוחים באוכל שנרשם.</div>';
 
     lineChart($("weightChart"), ds.map((d) => ({ x: d.date, y: d.weight })), { unit: "ק״ג", avg7: true, color: "var(--accent)" });
-    barChart($("kcalChart"), ds.map((d) => { const t = dayTotals(d); return { x: d.date, y: t.n ? t.kcal : null }; }), targets.kcal);
+    barChart($("kcalChart"), ds.map((d) => { const t = dayTotals(d); return { x: d.date, y: t.n && !d.partialFood ? t.kcal : null }; }), targets.kcal);
     barChart($("stepsChart"), ds.map((d) => ({ x: d.date, y: d.fit && d.fit.steps != null ? d.fit.steps : null })), 10000, { unit: "צעדים", label: "צעדים ביום", empty: "אין עדיין נתוני צעדים." });
 
     // calorie balance over the range (today excluded: it isn't finished)
@@ -942,7 +946,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
       const sk = tr.filter((x) => x.type === "sweet").reduce((s, x) => s + (x.kcal || 0), 0);
       const lk = tr.filter((x) => x.type === "salty").reduce((s, x) => s + (x.kcal || 0), 0);
       lines.push([k, WD[parseKey(k).getDay()], d.weight ?? "", d.water || "", d.mood ?? "", d.energy ?? "", d.sleep ?? "", f.steps ?? "", f.distance ?? "", f.flights ?? "", f.active ?? "", f.basal ?? "", f.exercise ?? "", f.workouts ?? "", f.hrAvg ?? "",
-        t.n ? Math.round(t.kcal) : "", t.n ? Math.round(t.protein) : "", t.n ? Math.round(t.carbs) : "", t.n ? Math.round(t.fat) : "", t.n ? Math.round(t.sugar) : "", t.n ? Math.round(t.fiber) : "",
+        t.n ? Math.round(t.kcal) + (d.partialFood ? " (partial)" : "") : "", t.n ? Math.round(t.protein) : "", t.n ? Math.round(t.carbs) : "", t.n ? Math.round(t.fat) : "", t.n ? Math.round(t.sugar) : "", t.n ? Math.round(t.fiber) : "",
         t.n ? Math.round(sk) : "", t.n ? Math.round(lk) : "",
         energyOut(d) ? Math.round(energyOut(d).total) : "", balanceOf(d) ? Math.round(balanceOf(d).bal) : "", (d.note || "").replace(/[\n,]/g, " ").slice(0, 80)].join(","));
       for (const w of f.workoutList || []) detail.push(`${k} ${w.start} WORKOUT ${w.type} ${Math.round(w.min)}min${w.km != null ? " " + w.km + "km" : ""}${w.kcal != null ? " " + w.kcal + "kcal" : ""}${w.hrAvg != null ? " hr_avg=" + w.hrAvg + " hr_max=" + w.hrMax : ""}`);
