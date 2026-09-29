@@ -423,6 +423,25 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
 
   <!-- SETUP -->
   <section class="view" id="view-setup" hidden>
+    <div class="block">
+      <h2>יעדים</h2>
+      <div class="card">
+        <div class="metrics">
+          <div class="metric"><label for="tKcal">יעד קלוריות</label><input class="field num" id="tKcal" type="number" inputmode="numeric"></div>
+          <div class="metric"><label for="tProt">יעד חלבון (גרם)</label><input class="field num" id="tProt" type="number" inputmode="numeric"></div>
+          <div class="metric"><label for="tWater">יעד מים (כוסות)</label><input class="field num" id="tWater" type="number" inputmode="numeric"></div>
+        </div>
+        <h3 style="padding-top:6px">לחישוב גירעון בלי נתוני Health</h3>
+        <p class="muted small" style="margin:0">כשאין ״אנרגיה במנוחה״ מהקיצור, קצב חילוף החומרים מחושב בנוסחת Mifflin-St Jeor מהמשקל האחרון, הגובה והגיל.</p>
+        <div class="metrics">
+          <div class="metric"><label for="pHeight">גובה (ס״מ)</label><input class="field num" id="pHeight" type="number" inputmode="numeric"></div>
+          <div class="metric"><label for="pGoal">משקל יעד (ק״ג)</label><input class="field num" id="pGoal" type="number" step="0.1" inputmode="decimal"></div>
+          <div class="metric"><label for="pBirth">שנת לידה</label><input class="field num" id="pBirth" type="number" inputmode="numeric"></div>
+          <div class="metric"><label for="pFormula">נוסחה</label><select class="field" id="pFormula"><option value="">לבחור</option><option value="f">לנשים</option><option value="m">לגברים</option></select></div>
+        </div>
+        <div class="row"><button class="btn primary" id="saveTargets">שמירה</button><span class="muted small" id="targetsMsg">שינויים נשמרים אוטומטית</span></div>
+      </div>
+    </div>
     <div class="block" id="guide">
       <h2>מדריך: קיצור הדרך באייפון</h2>
       <p class="muted small" style="margin:0">הקיצור קורא את נתוני היום מאפליקציית Health, מעתיק אותם, ופותח את העמוד הזה. נשאר רק להדביק בתיבת ״פעילות מהאייפון״. ההקמה לוקחת כ־10 דקות, פעם אחת.</p>
@@ -457,25 +476,6 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
           <button class="btn" id="perAdd">הוספה</button>
         </div>
         <span class="muted small" id="perMsg"></span>
-      </div>
-    </div>
-    <div class="block">
-      <h2>יעדים</h2>
-      <div class="card">
-        <div class="metrics">
-          <div class="metric"><label for="tKcal">יעד קלוריות</label><input class="field num" id="tKcal" type="number" inputmode="numeric"></div>
-          <div class="metric"><label for="tProt">יעד חלבון (גרם)</label><input class="field num" id="tProt" type="number" inputmode="numeric"></div>
-          <div class="metric"><label for="tWater">יעד מים (כוסות)</label><input class="field num" id="tWater" type="number" inputmode="numeric"></div>
-        </div>
-        <h3 style="padding-top:6px">לחישוב גירעון בלי נתוני Health</h3>
-        <p class="muted small" style="margin:0">כשאין ״אנרגיה במנוחה״ מהקיצור, קצב חילוף החומרים מחושב בנוסחת Mifflin-St Jeor מהמשקל האחרון, הגובה והגיל.</p>
-        <div class="metrics">
-          <div class="metric"><label for="pHeight">גובה (ס״מ)</label><input class="field num" id="pHeight" type="number" inputmode="numeric"></div>
-          <div class="metric"><label for="pGoal">משקל יעד (ק״ג)</label><input class="field num" id="pGoal" type="number" step="0.1" inputmode="decimal"></div>
-          <div class="metric"><label for="pBirth">שנת לידה</label><input class="field num" id="pBirth" type="number" inputmode="numeric"></div>
-          <div class="metric"><label for="pFormula">נוסחה</label><select class="field" id="pFormula"><option value="">לבחור</option><option value="f">לנשים</option><option value="m">לגברים</option></select></div>
-        </div>
-        <div class="row"><button class="btn" id="saveTargets">שמירה</button><span class="muted small" id="targetsMsg"></span></div>
       </div>
     </div>
   </section>
@@ -2070,6 +2070,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     savePeriod({ start: a, end: b || null }).then(renderPeriodList);
     $("perStart").value = ""; $("perEnd").value = ""; $("perMsg").textContent = "נשמר";
   };
+  ["tKcal", "tProt", "tWater", "pGoal", "pHeight", "pBirth", "pFormula"].forEach((id) => $(id).addEventListener("change", () => $("saveTargets").click()));
   $("toGuide").onclick = () => { tab("setup"); $("guide").scrollIntoView(); };
   $("saveTargets").onclick = async () => {
     targets = readTargets({ kcal: $("tKcal").value || targets.kcal, protein: $("tProt").value || targets.protein, water: $("tWater").value || targets.water,
