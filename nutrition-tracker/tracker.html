@@ -189,6 +189,9 @@ textarea.field { resize: vertical; min-height: 64px; }
 .slot-h h3 { color: var(--accent); }
 .slot-h .muted { font-variant-numeric: tabular-nums; }
 .plan { display: grid; gap: 10px; }
+.photo-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.photo-prev { display: flex; align-items: center; gap: 8px; }
+.photo-prev img { width: 64px; height: 64px; object-fit: cover; border-radius: 12px; border: 2px solid var(--accent); }
 .pmeal { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; display: grid; gap: 6px; }
 .pmeal .ph { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
 .pmeal ul { margin: 0; padding-inline-start: 18px; font-size: 0.9rem; color: var(--ink-2); }
@@ -270,6 +273,12 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
         <button class="link" id="nowBtn">עכשיו</button>
       </div>
       <textarea class="field" id="mealText" placeholder="מה אכלת בארוחה הזו? למשל: פיתה כוסמין עם 2 ביצים, סלט וכפית שמן זית"></textarea>
+      <div class="photo-row" id="photoRow" hidden>
+        <input type="file" id="photoInput" accept="image/*" capture="environment" hidden>
+        <button class="btn" id="photoBtn" type="button"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" style="vertical-align:-3px;margin-inline-end:6px"><path fill="currentColor" d="M9 4 7.2 6H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3.2L15 4H9zm3 4.5a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9zm0 2a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z"/></svg>צילום צלחת</button>
+        <div class="photo-prev" id="photoPrev" hidden><img id="photoImg" alt="התמונה שנבחרה"><button class="link danger" id="photoDel" type="button">הסרה</button></div>
+        <span class="muted small" id="photoHint">אפשר רק תמונה, או תמונה ועוד כמה מילים (למשל ״2 ממולאים, סלט בלי שמן״).</span>
+      </div>
       <div id="recentWrap" hidden><div class="muted small">אחרונים, בהקשה:</div><div class="row" id="recent"></div></div>
       <div class="row"><button class="btn primary" id="addMeal">הוספה וחישוב ערכים</button><span class="muted small" id="mealMsg"></span></div>
     </div>
@@ -715,8 +724,9 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
   }
 
   // ---------- nutrition estimate ----------
-  function mealPrompt(text, time) {
+  function mealPrompt(text, time, hasPhoto) {
     return [
+      hasPhoto ? "A photo of the meal is attached. Identify every food and drink in it and estimate portions from the photo (a dinner plate is ~26 cm, a fork ~19 cm). The text, if any, is her own note and wins over what you see (e.g. amounts, oil, what was not eaten). Also return `title`: a short Hebrew description of the meal." : "",
       "You estimate nutrition for a food diary kept by someone in Israel. The entry is in Hebrew, may contain typos (e.g. כןס = כוס), and may name Israeli products or chains (קוטג׳ 5%, במבה, פיתה, אסם, ארומה, תנובה…).",
       "The entry may hold one meal or a whole day. List EVERY food and drink as its own item, including coffee, milk in drinks, sauces, oil and spreads. Never skip a line.",
       "When an amount is missing, assume a typical Israeli portion and state it in `amount` (e.g. \"כוס 240 מ״ל, משוער\").",
@@ -724,12 +734,12 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
       "For each item give `taste`: \"sweet\" (desserts, chocolate, ice cream, cakes, cookies, candy, sweetened drinks, jam, honey, dates, sweet pastries), \"salty\" (chips, bamba, pretzels, crackers, salted nuts, pickles, salty cheeses, processed meats, salty snacks), \"savory\" (a regular cooked or prepared dish) or \"neutral\" (vegetables, plain fruit, water, plain coffee).",
       "And `treat`: true when the item is the kind of food usually eaten from a craving rather than as nourishment (dessert, chocolate, sweets, sweetened coffee drinks, salty snacks). Plain fruit, salad, bread with a meal, plain coffee are false.",
       "Use standard references (USDA, Israeli product labels). kcal whole numbers; grams one decimal; sodium in mg.",
-      'Reply with only JSON: {"items":[{"name":"שם בעברית","amount":"...","time":"HH:MM or null","kcal":0,"protein":0,"carbs":0,"fat":0,"sugar":0,"fiber":0,"sodium":0,"taste":"savory","treat":false}],"note":"one short Hebrew sentence on the main assumptions"}',
+      `Reply with only JSON: {"items":[{"name":"שם בעברית","amount":"...","time":"HH:MM or null","kcal":0,"protein":0,"carbs":0,"fat":0,"sugar":0,"fiber":0,"sodium":0,"taste":"savory","treat":false}],"note":"one short Hebrew sentence on the main assumptions"${hasPhoto ? ',"title":"תיאור קצר"' : ""}}`,
       "",
       "Time the entry was logged: " + (time || "unknown"),
       "Entry:",
-      text,
-    ].join("\n");
+      text || "(no text — use the photo)",
+    ].filter(Boolean).join("\n");
   }
   const ERR = {
     not_granted: "החישוב לא אושר. כדי לאשר צריך לרענן את הדף וללחוץ ״חישוב מחדש״.",
@@ -738,6 +748,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     invalid_json: "התשובה לא התקבלה בפורמט תקין. ללחוץ ״חישוב מחדש״.",
     prompt_too_large: "הרשומה ארוכה מדי. כדאי לפצל אותה לכמה ארוחות.",
   };
+  const photoFor = {};             // mealId -> image File, kept only in this view until estimated
   async function estimate(date, mealId) {
     if (inflight.has(mealId)) return;
     const m0 = getDay(date).meals.find((x) => x.id === mealId);
@@ -746,10 +757,17 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
       $("mealMsg").textContent = "החישוב האוטומטי זמין רק כשהדף פתוח מתוך claude.ai.";
       return;
     }
+    if (m0.photoOnly && !photoFor[mealId]) {
+      const fresh = getDay(date), mm = fresh.meals.find((x) => x.id === mealId);
+      if (mm) { mm.pending = false; mm.estError = "התמונה לא נשמרת אחרי שהדף נסגר. אפשר ללחוץ ״עריכה״ ולכתוב מה היה בצלחת."; await saveDay(fresh); }
+      return;
+    }
     inflight.add(mealId);
     renderToday();
     try {
-      const r = await sample.json(mealPrompt(m0.text, m0.time), { modelTier: "default" });
+      const img = photoFor[mealId];
+      const userText = m0.photoOnly ? "" : m0.text;
+      const r = await sample.json(mealPrompt(userText, m0.time, !!img), img ? { modelTier: "default", images: img } : { modelTier: "default" });
       const items = (Array.isArray(r && r.items) ? r.items : []).slice(0, 40).map((i) => {
         const o = { name: String(i.name || "").slice(0, 80), amount: String(i.amount || "").slice(0, 60), time: /^\d{1,2}:\d{2}$/.test(String(i.time)) ? String(i.time).padStart(5, "0") : null,
           taste: ["sweet", "salty", "savory", "neutral"].includes(i.taste) ? i.taste : "neutral", treat: i.treat === true };
@@ -763,6 +781,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
       mm.items = items;
       for (const k of NUTR) mm[k] = Math.round(items.reduce((s, i) => s + (i[k] || 0), 0) * 10) / 10;
       mm.estNote = String((r && r.note) || "").slice(0, 240);
+      if (img) { mm.fromPhoto = true; if (mm.photoOnly) { mm.text = (r && r.title ? String(r.title).slice(0, 120) + ": " : "") + items.map((i) => i.name + (i.amount ? ` (${i.amount})` : "")).join(", "); delete mm.photoOnly; } }
       mm.pending = false;
       delete mm.estError;
       delete mm.taste;
@@ -774,6 +793,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
       if (mm) { mm.pending = false; mm.estError = ERR[code] || "החישוב נכשל. ללחוץ ״חישוב מחדש״."; await saveDay(fresh); }
     } finally {
       inflight.delete(mealId);
+      delete photoFor[mealId];
       renderToday();
     }
   }
@@ -784,7 +804,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     const since = shift(todayKey(), -7);
     for (const d of Object.values(days)) {
       if (d.date < since) continue;
-      for (const m of d.meals || []) if (m.pending && m.kcal == null) estimate(d.date, m.id);
+      for (const m of d.meals || []) if (m.pending && m.kcal == null && !m.photoOnly) estimate(d.date, m.id);
     }
   }
 
@@ -1105,7 +1125,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
         mm.text = box.querySelector('[data-k="text"]').value.trim().slice(0, 1500) || mm.text;
         mm.time = box.querySelector('[data-k="time"]').value || mm.time;
         mm.slot = box.querySelector('[data-k="slot"]').value;
-        mm.pending = true; delete mm.estError;
+        mm.pending = true; delete mm.estError; delete mm.photoOnly;
         for (const k of NUTR) mm[k] = null;
         mm.items = [];
         await saveDay(d);
@@ -1998,15 +2018,29 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
 
   $("addMeal").onclick = async () => {
     const text = $("mealText").value.trim();
-    if (!text) { $("mealMsg").textContent = "צריך לכתוב מה אכלת."; return; }
+    const photo = pickedPhoto;
+    if (!text && !photo) { $("mealMsg").textContent = "צריך לכתוב מה אכלת או לצרף תמונה."; return; }
     $("mealMsg").textContent = "";
     const d = getDay(cur);
-    const m = { id: uid(), time: $("mealTime").value || nowHM(), slot: pickedSlot || slotFromTime($("mealTime").value || nowHM()), text: text.slice(0, 1500), items: [], kcal: null, protein: null, carbs: null, fat: null, sugar: null, fiber: null, sodium: null, pending: true };
+    const m = { id: uid(), time: $("mealTime").value || nowHM(), slot: pickedSlot || slotFromTime($("mealTime").value || nowHM()), text: text ? text.slice(0, 1500) : "ארוחה מתמונה", photoOnly: !text && !!photo, items: [], kcal: null, protein: null, carbs: null, fat: null, sugar: null, fiber: null, sodium: null, pending: true };
     d.meals.push(m);
     $("mealText").value = ""; $("mealTime").value = nowHM(); pickedSlot = null;
+    if (photo) photoFor[m.id] = photo;
+    clearPhoto();
     await saveDay(d);
     estimate(cur, m.id);
   };
+  let pickedPhoto = null, photoUrl = null;
+  function clearPhoto() { pickedPhoto = null; if (photoUrl) URL.revokeObjectURL(photoUrl); photoUrl = null; $("photoPrev").hidden = true; $("photoInput").value = ""; }
+  $("photoBtn").onclick = () => $("photoInput").click();
+  $("photoDel").onclick = clearPhoto;
+  $("photoInput").addEventListener("change", () => {
+    const f = $("photoInput").files && $("photoInput").files[0];
+    if (!f) return;
+    clearPhoto(); pickedPhoto = f; photoUrl = URL.createObjectURL(f);
+    $("photoImg").src = photoUrl; $("photoPrev").hidden = false;
+    $("mealMsg").textContent = "התמונה צורפה. אפשר להוסיף מילים, ואז ללחוץ ״הוספה וחישוב ערכים״.";
+  });
   const bindNum = (id, key) => $(id).addEventListener("change", () => { const d = getDay(cur); d[key] = num($(id).value); saveDay(d); });
   bindNum("weight", "weight"); bindNum("sleep", "sleep");
   $("note").addEventListener("change", () => { const d = getDay(cur); d.note = $("note").value.slice(0, 1000); saveDay(d); });
@@ -2087,6 +2121,7 @@ pre.code { display: block; padding: 10px; overflow-x: auto; white-space: pre; te
     const [d, s] = await Promise.all([claude.use("db"), claude.use("sample")]);
     sample = s;
     db = d;
+    if (sample && sample.limits) sample.limits().then((l) => { if (l && l.images) { $("photoRow").hidden = false; if (l.images.mediaTypes) $("photoInput").accept = l.images.mediaTypes.join(","); } }).catch(() => {});
     if (!db) { setStatus("האחסון לא זמין בתצוגה הזו, אז שום דבר לא יישמר. צריך לפתוח את העמוד מ־claude.ai.", true); return; }
     setStatus("טוען…");
     let first = true;
